@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="512" height="512">
+  <!-- Slate 500 border (2px) -->
+  <circle cx="50" cy="50" r="50" fill="#64748B"/>
+
+  <!-- White clock face -->
+  <circle cx="50" cy="50" r="48" fill="#FFFFFF"/>
+
+  <!-- Progress track -->
+  <circle cx="50" cy="50" r="36" fill="none" stroke="#E2E8F0" stroke-width="4.5"/>
+
+  <!-- Progress arc: 8am to 3pm clockwise -->
+  <path d="M 18.8,68 A 36,36 0 1,1 86,50"
+    fill="none" stroke="#059669" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Minute hand — tapered, wide in middle, narrow at tip and tail -->
+  <path d="M 50.5,22 C 52.5,36 51.5,48 51,57 L 49,57 C 48.5,48 47.5,36 49.5,22 Z"
+    fill="#0F172A"/>
+
+  <!-- Hour hand — tapered, shorter and chunkier -->
+  <path d="M 70,49.5 C 55,47 49,48 43,49 L 43,51 C 49,52 55,53 70,50.5 Z"
+    fill="#0F172A"/>
+
+  <!-- Center boss -->
+  <circle cx="50" cy="50" r="5.5" fill="#0F172A"/>
+  <circle cx="50" cy="50" r="2.5" fill="#FFFFFF"/>
+</svg>
