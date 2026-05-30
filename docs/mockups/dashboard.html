@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Call It a Day — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #F8FAFC;
+      --surface:     #FFFFFF;
+      --indigo:      #4F46E5;
+      --indigo-dim:  #EEF2FF;
+      --emerald:     #059669;
+      --emerald-dim: #D1FAE5;
+      --amber:       #D97706;
+      --amber-dim:   #FEF3C7;
+      --red:         #DC2626;
+      --text-1:      #0F172A;
+      --text-2:      #64748B;
+      --text-3:      #94A3B8;
+      --border:      #E2E8F0;
+      --font-ui:     'Plus Jakarta Sans', sans-serif;
+      --font-body:   'Inter', sans-serif;
+      --font-mono:   'JetBrains Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: var(--font-body);
+      min-height: 100vh;
+    }
+
+    /* ── Nav ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .wordmark {
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text-1);
+      letter-spacing: -0.01em;
+    }
+    .wordmark span { color: var(--indigo); }
+    nav .meta { font-size: 13px; color: var(--text-2); }
+
+    /* ── Layout ── */
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+    }
+
+    /* ── Hero ── */
+    .hero-date {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-2);
+      margin-bottom: 6px;
+    }
+    .hero-time {
+      font-family: var(--font-mono);
+      font-size: 52px;
+      font-weight: 600;
+      color: var(--text-1);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .hero-time.done { color: var(--emerald); }
+    .hero-sub {
+      font-size: 14px;
+      color: var(--text-2);
+      margin-top: 6px;
+    }
+    .progress-wrap { margin-top: 20px; }
+    .progress-track {
+      background: var(--border);
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--indigo);
+      transition: width 0.4s ease;
+    }
+    .progress-fill.done { background: var(--emerald); }
+    .progress-label {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 8px;
+    }
+
+    /* ── Hero divider + weekly summary ── */
+    .hero-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+    .weekly-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .weekly-summary .wleft { display: flex; flex-direction: column; gap: 3px; }
+    .weekly-label {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-2);
+    }
+    .weekly-val {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+    .weekly-val.done { color: var(--emerald); }
+    .weekly-remaining {
+      font-size: 12px;
+      color: var(--text-2);
+    }
+    .bank-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .bank-chip.positive {
+      background: var(--emerald-dim);
+      color: var(--emerald);
+    }
+    .bank-chip.negative {
+      background: var(--amber-dim);
+      color: var(--amber);
+    }
+
+    /* ── Done state hero ── */
+    .done-hero {
+      text-align: center;
+      padding: 8px 0;
+    }
+    .done-msg {
+      font-family: var(--font-ui);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--emerald);
+      margin-bottom: 4px;
+    }
+    .done-sub {
+      font-size: 14px;
+      color: var(--text-2);
+    }
+
+    /* ── Section header ── */
+    .section-header {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-2);
+      margin-bottom: 12px;
+    }
+
+    /* ── Inline badges ── */
+    .live-badge {
+      background: var(--indigo);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: var(--font-ui);
+      letter-spacing: 0.03em;
+    }
+    .flag-badge {
+      background: var(--amber);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: var(--font-ui);
+    }
+    .btn-ghost {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .btn-ghost:hover { color: var(--text-1); border-color: #CBD5E1; }
+
+    /* ── Special session rows ── */
+    .session-row.live {
+      background: var(--indigo-dim);
+      border-radius: 8px;
+      padding: 11px 12px;
+      margin: 0 -12px;
+      border-bottom: none !important;
+    }
+    .session-row.live + .session-row { border-top: none; }
+    .session-row.flagged {
+      background: var(--amber-dim);
+      border-radius: 8px;
+      padding: 11px 12px;
+      margin: 4px -12px 8px;
+      border-bottom: none !important;
+    }
+    .session-row.flagged .time-range { color: var(--amber); font-weight: 500; }
+    .session-row.live .time-range { color: var(--indigo); font-weight: 500; }
+    .session-row.live .dur { color: var(--indigo); }
+    .dismiss-actions { display: flex; gap: 6px; }
+
+    /* ── Session note ── */
+    .session-note {
+      padding: 0 0 9px 0;
+      border-bottom: 1px solid var(--border);
+      margin-top: -4px;
+    }
+    .session-note:last-child { border-bottom: none; }
+    .note-input {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--text-3);
+      background: none;
+      border: none;
+      outline: none;
+      width: 100%;
+      cursor: text;
+    }
+    .note-input::placeholder { color: var(--text-3); }
+    .note-input:focus { color: var(--text-2); }
+    .session-row + .session-note { border-bottom: 1px solid var(--border); }
+    .gap-row + .session-note { display: none; }
+
+    /* ── Gap row ── */
+    .gap-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+      border-bottom: none;
+    }
+    .gap-row .gap-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+    .gap-row .gap-label {
+      font-size: 11px;
+      color: var(--text-3);
+      font-family: var(--font-ui);
+      white-space: nowrap;
+    }
+
+    /* ── Session list ── */
+    .session-list { display: flex; flex-direction: column; }
+    .session-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .session-row:last-child { border-bottom: none; }
+    .session-row.non-work .time-range { color: var(--text-3); }
+    .session-row.non-work .dur { color: var(--text-3); text-decoration: line-through; }
+    .time-range {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .session-computer {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+    .dur {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-1);
+      min-width: 48px;
+      text-align: right;
+    }
+    .work-btn {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .work-btn.is-work {
+      background: var(--indigo-dim);
+      color: var(--indigo);
+    }
+    .work-btn.is-nonwork {
+      background: var(--border);
+      color: var(--text-2);
+    }
+    .manual-tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: var(--font-ui);
+    }
+
+    /* ── Weekly chart ── */
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .day-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .day-bar-wrap {
+      position: relative;
+      width: 100%;
+      height: 80px;
+    }
+    .goal-line {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 80%;  /* 8h / 10h max = 80% */
+      border-top: 1.5px dashed var(--border);
+      z-index: 1;
+    }
+    .day-bar-track {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 100%;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .day-bar-fill {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      border-radius: 4px;
+      background: var(--indigo);
+      opacity: 0.6;
+      transition: height 0.4s ease;
+    }
+    .day-bar-fill.today { opacity: 1; }
+    .day-bar-fill.goal-met { background: var(--emerald); opacity: 0.75; }
+    .day-bar-fill.today.goal-met { opacity: 1; }
+    .day-label {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .day-label.today { color: var(--indigo); font-weight: 700; }
+    .day-hours {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-3);
+    }
+    .day-hours.today { color: var(--text-1); font-weight: 500; }
+
+    /* ── Demo toggle ── */
+    .demo-toggle {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .toggle-btn {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      cursor: pointer;
+    }
+    .toggle-btn.active {
+      background: var(--indigo);
+      color: #fff;
+      border-color: var(--indigo);
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="wordmark">Call It a <span>Day</span></div>
+  <div class="meta">Friday, May 30</div>
+</nav>
+
+<div class="container">
+
+  <div class="demo-toggle">
+    <button class="toggle-btn active" onclick="setState('in-progress')">In progress</button>
+    <button class="toggle-btn" onclick="setState('done')">Done</button>
+  </div>
+
+  <!-- Hero card -->
+  <div class="card" id="hero-card">
+
+    <!-- In-progress state -->
+    <div id="hero-inprogress">
+      <div class="hero-time">6h 42m</div>
+      <div class="hero-sub">of 8h goal · 1h 18m remaining</div>
+      <div class="progress-wrap">
+        <div class="progress-track">
+          <div class="progress-fill" style="width: 84%"></div>
+        </div>
+      </div>
+      <hr class="hero-divider">
+      <div class="weekly-summary">
+        <div class="wleft">
+          <div class="weekly-label">This week</div>
+          <div class="weekly-val">38h 27m</div>
+          <div class="weekly-remaining">of 40h · 1h 33m to go</div>
+        </div>
+        <div class="bank-chip negative">–45m to make up</div>
+      </div>
+    </div>
+
+    <!-- Done state (hidden by default) -->
+    <div id="hero-done" style="display:none">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+        <div>
+          <div class="hero-time done">8h 03m</div>
+          <div class="hero-sub">goal reached</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="done-msg">You've earned it.</div>
+          <div class="done-sub">Call it a day.</div>
+        </div>
+      </div>
+      <div class="progress-wrap">
+        <div class="progress-track">
+          <div class="progress-fill done" style="width: 100%"></div>
+        </div>
+      </div>
+      <hr class="hero-divider">
+      <div class="weekly-summary">
+        <div class="wleft">
+          <div class="weekly-label">This week</div>
+          <div class="weekly-val done">40h 48m</div>
+          <div class="weekly-remaining">40h goal reached</div>
+        </div>
+        <div class="bank-chip positive">+48m banked</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Weekly chart -->
+  <div class="card">
+    <div class="section-header">This Week</div>
+    <div class="week-grid">
+
+      <div class="day-col">
+        <div class="day-bar-wrap">
+          <div class="goal-line"></div>
+          <div class="day-bar-track">
+            <div class="day-bar-fill goal-met" style="height: 85%"></div>
+          </div>
+        </div>
+        <div class="day-label">Mon</div>
+        <div class="day-hours">8h 30m</div>
+      </div>
+
+      <div class="day-col">
+        <div class="day-bar-wrap">
+          <div class="goal-line"></div>
+          <div class="day-bar-track">
+            <div class="day-bar-fill goal-met" style="height: 82%"></div>
+          </div>
+        </div>
+        <div class="day-label">Tue</div>
+        <div class="day-hours">8h 15m</div>
+      </div>
+
+      <div class="day-col">
+        <div class="day-bar-wrap">
+          <div class="goal-line"></div>
+          <div class="day-bar-track">
+            <div class="day-bar-fill goal-met" style="height: 80%"></div>
+          </div>
+        </div>
+        <div class="day-label">Wed</div>
+        <div class="day-hours">8h 00m</div>
+      </div>
+
+      <div class="day-col">
+        <div class="day-bar-wrap">
+          <div class="goal-line"></div>
+          <div class="day-bar-track">
+            <div class="day-bar-fill" style="height: 70%"></div>
+          </div>
+        </div>
+        <div class="day-label">Thu</div>
+        <div class="day-hours">7h 00m</div>
+      </div>
+
+      <div class="day-col">
+        <div class="day-bar-wrap">
+          <div class="goal-line"></div>
+          <div class="day-bar-track">
+            <div class="day-bar-fill today" id="fri-bar" style="height: 67%"></div>
+          </div>
+        </div>
+        <div class="day-label today">Fri</div>
+        <div class="day-hours today" id="fri-hours">6h 42m</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Today's sessions (includes active) -->
+  <div class="card" id="sessions-card">
+    <div class="section-header">Today's Sessions</div>
+    <div class="session-list">
+
+      <!-- Sessions sorted reverse-chronological by start time.       -->
+      <!-- Gaps are computed from the merged union across all machines -->
+      <!-- so a gap only appears when ALL computers are idle.          -->
+
+      <!-- Flagged: second active session on alan-windows, been running since morning -->
+      <div class="session-row flagged" id="flagged-row">
+        <span class="time-range">8:00 AM – ? &nbsp;<span class="flag-badge">Review</span></span>
+        <span class="session-computer">alan-windows · 2nd active session · no end recorded</span>
+        <span class="dur">—</span>
+        <div class="dismiss-actions">
+          <button class="btn-ghost" onclick="document.getElementById('flagged-row').remove()">Dismiss</button>
+          <button class="btn-ghost">Keep</button>
+        </div>
+      </div>
+
+      <!-- Block 2: 12:45 PM – now (alan-windows + alan-claude overlap 1:00–1:30) -->
+      <div class="session-row live">
+        <span class="time-range">1:00 PM – now &nbsp;<span class="live-badge">Live</span></span>
+        <span class="session-computer">alan-windows</span>
+        <span class="dur">2h 42m</span>
+        <button class="work-btn is-work" onclick="toggleWork(this)">Work</button>
+      </div>
+      <div class="session-note"><input class="note-input" type="text" placeholder="Add note…"></div>
+
+      <div class="session-row" id="row-2">
+        <span class="time-range">12:45 PM – 1:30 PM</span>
+        <span class="session-computer">alan-claude</span>
+        <span class="dur">45m</span>
+        <button class="work-btn is-work" onclick="toggleWork(this)">Work</button>
+      </div>
+      <div class="session-note"><input class="note-input" type="text" placeholder="Add note…"></div>
+
+      <!-- Gap: both machines idle 12:00–12:45 -->
+      <div class="gap-row">
+        <div class="gap-line"></div>
+        <span class="gap-label">45m break</span>
+        <div class="gap-line"></div>
+      </div>
+
+      <!-- Block 1: 8:00 AM – 12:00 PM (alan-windows overlaps 9:30–11:00) -->
+      <div class="session-row" id="row-3">
+        <span class="time-range">9:30 AM – 11:00 AM</span>
+        <span class="session-computer">alan-windows</span>
+        <span class="dur">1h 30m</span>
+        <button class="work-btn is-nonwork" onclick="toggleWork(this)">Work</button>
+      </div>
+      <div class="session-note"><input class="note-input" type="text" placeholder="Add note…"></div>
+
+      <div class="session-row" id="row-1">
+        <span class="time-range">8:00 AM – 12:00 PM</span>
+        <span class="session-computer">alan-claude</span>
+        <span class="dur">4h 00m</span>
+        <button class="work-btn is-work" onclick="toggleWork(this)">Work</button>
+      </div>
+      <div class="session-note"><input class="note-input" type="text" value="Morning deep work block"></div>
+
+      <!-- Manual: full time range -->
+      <div class="session-row" id="row-manual-1">
+        <span class="time-range">7:00 AM – 8:00 AM</span>
+        <span class="session-computer"></span>
+        <span class="dur">1h 00m</span>
+        <span class="manual-tag">manual</span>
+      </div>
+      <div class="session-note">
+        <input class="note-input" type="text" value="Early morning emails before logging in">
+      </div>
+
+      <!-- Manual: start only -->
+      <div class="session-row" id="row-manual-2">
+        <span class="time-range">6:30 AM – ?</span>
+        <span class="session-computer"></span>
+        <span class="dur">30m</span>
+        <span class="manual-tag">manual</span>
+      </div>
+      <div class="session-note">
+        <input class="note-input" type="text" placeholder="Add note…">
+      </div>
+
+      <!-- Manual: hours only, no specific time -->
+      <div class="session-row" id="row-manual-3">
+        <span class="time-range" style="color: var(--text-3); font-style: italic;">no time specified</span>
+        <span class="session-computer"></span>
+        <span class="dur">2h 00m</span>
+        <span class="manual-tag">manual</span>
+      </div>
+      <div class="session-note">
+        <input class="note-input" type="text" value="On-call coverage overnight">
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function setState(state) {
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    const inProgress = document.getElementById('hero-inprogress');
+    const done       = document.getElementById('hero-done');
+    const activeCard = document.getElementById('sessions-card');
+    const friBar     = document.getElementById('fri-bar');
+    const friHours   = document.getElementById('fri-hours');
+
+    if (state === 'done') {
+      inProgress.style.display = 'none';
+      done.style.display = 'block';
+      friBar.style.height = '80%';
+      friBar.classList.add('goal-met');
+      friHours.textContent = '8h 03m';
+    } else {
+      inProgress.style.display = 'block';
+      done.style.display = 'none';
+      activeCard.style.display = 'block';
+      friBar.style.height = '67%';
+      friBar.classList.remove('goal-met');
+      friHours.textContent = '6h 42m';
+    }
+  }
+
+  function toggleWork(btn) {
+    const row = btn.closest('.session-row');
+    const isWork = btn.classList.contains('is-work');
+    if (isWork) {
+      btn.classList.replace('is-work', 'is-nonwork');
+      row.classList.add('non-work');
+    } else {
+      btn.classList.replace('is-nonwork', 'is-work');
+      row.classList.remove('non-work');
+    }
+  }
+</script>
+
+</body>
+</html>
