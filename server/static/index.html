@@ -875,7 +875,11 @@ function renderSessions(today) {
         <span class="time-range">${timeStr}</span>
         <span class="session-computer">${m.note || ''}</span>
         <span class="dur">${fmt(m.hours_total)}</span>
-        <span class="manual-tag">manual</span>`;
+        <span style="display:flex;align-items:center;gap:6px">
+          <span class="manual-tag">manual</span>
+          <button class="btn-ghost" style="padding:2px 7px;font-size:13px;line-height:1"
+            onclick="deleteManual(${m.id}, this)">×</button>
+        </span>`;
       list.appendChild(row);
     }
   }
@@ -976,6 +980,17 @@ async function toggleWork(sessionId, btn) {
     btn.classList.toggle('is-work', newIsWork);
     btn.classList.toggle('is-nonwork', !newIsWork);
     row.classList.toggle('non-work', !newIsWork);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function deleteManual(entryId, btn) {
+  btn.disabled = true;
+  try {
+    await fetch(`/api/manual/${entryId}`, { method: 'DELETE' });
+    btn.closest('.session-row').remove();
+    refresh();
   } finally {
     btn.disabled = false;
   }
