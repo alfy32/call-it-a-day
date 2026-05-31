@@ -14,7 +14,7 @@ from calculations import (
     sessions_hours_in_window, today_work_hours,
     calculate_stop_time, calculate_hours_bank,
     weekdays_elapsed, remaining_weekdays_in_week,
-    active_session_effective_hours, manual_entry_hours, ACTIVE_SESSION_CAP_HOURS,
+    manual_entry_hours, ACTIVE_SESSION_CAP_HOURS,
 )
 
 router = APIRouter()

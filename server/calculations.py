@@ -26,10 +26,6 @@ def manual_entry_hours(entry) -> float:
     return 0.0
 
 
-def active_session_effective_hours(session, now: datetime) -> float:
-    raw = (now - session.started_at).total_seconds() / 3600
-    return min(raw, ACTIVE_SESSION_CAP_HOURS)
-
 
 def complete_sessions_hours(sessions: list, manual_entries: list, now: datetime) -> float:
     """Merged work hours from complete sessions (across computers) plus manual entries."""
