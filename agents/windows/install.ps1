@@ -60,7 +60,7 @@ $logonTaskXml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>Call It a Day - recover missed shutdown end, then post start on logon</Description>
+    <Description>Call It a Day - post start event on logon</Description>
   </RegistrationInfo>
   <Triggers>
     <LogonTrigger>
@@ -83,7 +83,7 @@ $logonTaskXml = @"
   <Actions>
     <Exec>
       <Command>powershell.exe</Command>
-      <Arguments>-NoProfile -WindowStyle Hidden -NonInteractive -ExecutionPolicy Bypass -File "$REPORT_PS1" -Action logon</Arguments>
+      <Arguments>-NoProfile -WindowStyle Hidden -NonInteractive -ExecutionPolicy Bypass -File "$REPORT_PS1" -Action start</Arguments>
     </Exec>
   </Actions>
 </Task>
@@ -180,7 +180,7 @@ Register-ScheduledTask -TaskName $TASK_UNLOCK -Xml $unlockTaskXml -Force | Out-N
 Register-ScheduledTask -TaskName $TASK_END    -Xml $endTaskXml    -Force | Out-Null
 
 Write-Host "Tasks registered:"
-Write-Host "  $TASK_LOGON  - fires on logon (posts end+start to recover missed shutdowns)"
+Write-Host "  $TASK_LOGON  - fires on logon (posts start)"
 Write-Host "  $TASK_UNLOCK - fires on screen unlock (posts start)"
 Write-Host "  $TASK_END    - fires on lock, logoff, and shutdown (posts end)"
 Write-Host ""
