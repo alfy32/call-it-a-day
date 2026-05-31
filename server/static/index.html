@@ -986,6 +986,7 @@ async function toggleWork(sessionId, btn) {
 }
 
 async function deleteManual(entryId, btn) {
+  if (!confirm('Remove this manual entry?')) return;
   btn.disabled = true;
   try {
     await fetch(`/api/manual/${entryId}`, { method: 'DELETE' });
