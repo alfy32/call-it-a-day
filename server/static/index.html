@@ -344,6 +344,28 @@
     .day-hours.today { color: var(--text-1); font-weight: 500; }
     .day-bar-fill.weekend { opacity: 0.35; }
 
+    /* Session note */
+    .session-meta { display: flex; flex-direction: column; gap: 2px; }
+    .session-note {
+      font-size: 12px;
+      color: var(--text-2);
+      cursor: pointer;
+    }
+    .session-note.empty { color: var(--text-3); font-style: italic; }
+    .session-note:hover { color: var(--indigo); }
+    .note-input {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--text-2);
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--indigo);
+      outline: none;
+      padding: 0;
+      min-width: 120px;
+      width: 100%;
+    }
+
     /* Empty state */
     .empty-state {
       font-size: 13px;
@@ -854,7 +876,11 @@ function renderSessions(today) {
       row.className = 'session-row' + (s.is_work ? '' : ' non-work');
       row.innerHTML = `
         <span class="time-range">${fmtTime(s.started_at)} – ${fmtTime(s.ended_at)}</span>
-        <span class="session-computer">${s.computer}</span>
+        <div class="session-meta">
+          <span class="session-computer">${s.computer}</span>
+          <span class="session-note${s.note ? '' : ' empty'}"
+            onclick="editNote(this, ${s.id}, 'session')">${esc(s.note || 'add note…')}</span>
+        </div>
         <span class="dur">${fmt(dur)}</span>
         <button class="work-btn ${s.is_work ? 'is-work' : 'is-nonwork'}"
           onclick="toggleWork(${s.id}, this)">Work</button>`;
@@ -876,7 +902,8 @@ function renderSessions(today) {
       row.className = 'session-row';
       row.innerHTML = `
         <span class="time-range">${timeStr}</span>
-        <span class="session-computer">${m.note || ''}</span>
+        <span class="session-note${m.note ? '' : ' empty'}"
+          onclick="editNote(this, ${m.id}, 'manual')">${esc(m.note || 'add note…')}</span>
         <span class="dur">${fmt(m.hours_total)}</span>
         <span style="display:flex;align-items:center;gap:6px">
           <span class="manual-tag">manual</span>
@@ -966,6 +993,43 @@ function renderWeekChart(week, dailyTarget) {
       <div class="day-hours${isToday ? ' today' : ''}">${day.hours > 0 ? fmt(day.hours) : '—'}</div>`;
     grid.appendChild(col);
   }
+}
+
+function esc(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function editNote(span, id, type) {
+  if (span.querySelector('input')) return;
+  const current = span.classList.contains('empty') ? '' : span.textContent;
+  const input = document.createElement('input');
+  input.className = 'note-input';
+  input.value = current;
+  input.placeholder = 'Add note…';
+  span.replaceWith(input);
+  input.focus();
+
+  async function save() {
+    const newNote = input.value.trim() || null;
+    const newSpan = document.createElement('span');
+    newSpan.className = 'session-note' + (newNote ? '' : ' empty');
+    newSpan.textContent = newNote || 'add note…';
+    newSpan.onclick = () => editNote(newSpan, id, type);
+    input.replaceWith(newSpan);
+
+    const url = type === 'session' ? `/api/sessions/${id}` : `/api/manual/${id}`;
+    await fetch(url, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ note: newNote }),
+    });
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') { input.value = current; input.blur(); }
+  });
 }
 
 async function toggleWork(sessionId, btn) {

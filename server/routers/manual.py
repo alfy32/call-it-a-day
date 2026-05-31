@@ -1,11 +1,16 @@
 from datetime import date
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import get_db
 from models import ManualEntry
 from schemas import ManualEntryIn, ManualEntryOut
 from calculations import manual_entry_hours
+
+
+class ManualEntryPatch(BaseModel):
+    note: str | None = None
 
 router = APIRouter()
 
@@ -40,6 +45,17 @@ def create_manual(entry: ManualEntryIn, db: Session = Depends(get_db)):
         note=entry.note,
     )
     db.add(m)
+    db.commit()
+    db.refresh(m)
+    return _to_out(m)
+
+
+@router.patch("/api/manual/{entry_id}", response_model=ManualEntryOut)
+def patch_manual(entry_id: int, patch: ManualEntryPatch, db: Session = Depends(get_db)):
+    m = db.query(ManualEntry).filter(ManualEntry.id == entry_id).first()
+    if not m:
+        raise HTTPException(status_code=404, detail="Manual entry not found")
+    m.note = patch.note
     db.commit()
     db.refresh(m)
     return _to_out(m)
