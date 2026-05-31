@@ -26,6 +26,30 @@ The installer will ask for your server URL and a name for this computer, then se
 
 Logs: `journalctl --user -u callitaday-listener -f`
 
+### Windows
+
+Run PowerShell as Administrator, then:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\agents\windows\install.ps1
+```
+
+The installer will ask for your server URL and a name for this computer, then register two Task Scheduler tasks:
+
+| Task | Fires on |
+|------|----------|
+| `CallItaDay-Start` | Screen unlock, logon |
+| `CallItaDay-End` | Screen lock, logoff, shutdown |
+
+Config is written to `%APPDATA%\callitaday\config.json`.
+
+To check that events are being sent, run the task manually:
+
+```powershell
+Start-ScheduledTask -TaskName CallItaDay-Start
+```
+
 ---
 
 ## Database Backups
