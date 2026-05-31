@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 140" width="720" height="280">
+
+  <rect width="360" height="140" fill="#F1F5F9"/>
+
+  <!-- ICON 1: Sunset + Rays -->
+  <g transform="translate(10,10)">
+    <rect width="100" height="100" rx="22" fill="#4F46E5"/>
+    <!-- Rays -->
+    <line x1="50" y1="63" x2="50" y2="20" stroke="#FCD34D" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="63" x2="22" y2="30" stroke="#FCD34D" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="63" x2="78" y2="30" stroke="#FCD34D" stroke-width="5" stroke-linecap="round"/>
+    <line x1="50" y1="63" x2="14" y2="50" stroke="#FCD34D" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+    <line x1="50" y1="63" x2="86" y2="50" stroke="#FCD34D" stroke-width="4" stroke-linecap="round" opacity="0.65"/>
+    <!-- Sun -->
+    <circle cx="50" cy="63" r="22" fill="#F59E0B"/>
+    <!-- Cover lower half with bg -->
+    <rect x="0" y="63" width="100" height="37" fill="#4F46E5"/>
+    <!-- Horizon line -->
+    <line x1="12" y1="63" x2="88" y2="63" stroke="white" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+  <text x="60" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#94A3B8">Sunset + rays</text>
+
+  <!-- ICON 2: Sunset Minimal -->
+  <g transform="translate(130,10)">
+    <rect width="100" height="100" rx="22" fill="#4F46E5"/>
+    <!-- Bold semicircle (counter-clockwise = top arc) -->
+    <path d="M 17,66 A 33,33 0 0,0 83,66 Z" fill="#F59E0B"/>
+    <!-- Horizon line -->
+    <line x1="12" y1="66" x2="88" y2="66" stroke="white" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <text x="180" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#94A3B8">Sunset minimal</text>
+
+  <!-- ICON 3: Crescent Moon -->
+  <g transform="translate(250,10)">
+    <rect width="100" height="100" rx="22" fill="#1E1B4B"/>
+    <!-- Full white circle -->
+    <circle cx="50" cy="52" r="28" fill="white"/>
+    <!-- Carve to crescent by overlaying bg-colored circle offset left+up -->
+    <circle cx="40" cy="46" r="24" fill="#1E1B4B"/>
+    <!-- Stars -->
+    <circle cx="72" cy="26" r="4" fill="white"/>
+    <circle cx="82" cy="42" r="2.5" fill="white" opacity="0.7"/>
+    <circle cx="66" cy="16" r="2" fill="white" opacity="0.5"/>
+  </g>
+  <text x="300" y="124" text-anchor="middle" font-family="system-ui,sans-serif" font-size="11" fill="#94A3B8">Crescent moon</text>
+
+</svg>
