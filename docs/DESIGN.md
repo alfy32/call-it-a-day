@@ -86,4 +86,4 @@ Full visual guide: [BRANDING.md](BRANDING.md)
 
 ## Status
 
-Branding, architecture, and dashboard design decided. Dashboard mockup complete at `docs/mockups/dashboard.html`. Implementation not yet started.
+Branding, architecture, and UI design decided. Mockups complete at `docs/mockups/`. Implementation not yet started.
