@@ -12,7 +12,8 @@ from schemas import (
 )
 from calculations import (
     sessions_hours_in_window, today_work_hours,
-    calculate_stop_time, weekdays_elapsed, remaining_weekdays_in_week,
+    calculate_stop_time, calculate_hours_bank,
+    weekdays_elapsed, remaining_weekdays_in_week,
     active_session_effective_hours, manual_entry_hours, ACTIVE_SESSION_CAP_HOURS,
 )
 
@@ -138,16 +139,12 @@ def summary_today(db: Session = Depends(get_db)):
         .all()
     )
 
-    # Running bank across all time
+    # Running bank from first data date this year
     all_complete = db.query(CompleteSession).all()
     all_manual_ever = db.query(ManualEntry).all()
-    all_worked = sessions_hours_in_window(
-        all_complete, active, all_manual_ever,
-        datetime.combine(cfg["tracking_start"], datetime.min.time()),
-        now, now,
-    )
-    expected_total = weekdays_elapsed(cfg["tracking_start"], today + timedelta(days=1)) * cfg["daily_target"]
-    bank_hours = round(all_worked - expected_total, 2)
+    bank_hours = round(calculate_hours_bank(
+        all_complete, active, all_manual_ever, cfg["daily_target"], now,
+    ), 2)
 
     stop_time = calculate_stop_time(
         week_complete=week_complete,

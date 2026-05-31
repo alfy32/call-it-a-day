@@ -109,19 +109,49 @@ def remaining_weekdays_in_week(today: date) -> int:
     return max(0, 5 - dow)
 
 
+def first_data_date(
+    complete_sessions: list,
+    active_sessions: list,
+    all_manual: list,
+    now: datetime,
+) -> date | None:
+    """Return the earliest date with any recorded data this calendar year."""
+    year_start = date(now.year, 1, 1)
+    candidates: list[date] = []
+    for s in complete_sessions:
+        d = s.started_at.date()
+        if d >= year_start:
+            candidates.append(d)
+    for s in active_sessions:
+        d = s.started_at.date()
+        if d >= year_start:
+            candidates.append(d)
+    for m in all_manual:
+        if m.date >= year_start:
+            candidates.append(m.date)
+    return min(candidates) if candidates else None
+
+
 def calculate_hours_bank(
     complete_sessions: list,
     active_sessions: list,
     all_manual: list,
-    tracking_start: date,
     daily_target: float,
     now: datetime,
 ) -> float:
-    end = now.date() + timedelta(days=1)
-    expected = weekdays_elapsed(tracking_start, end) * daily_target
+    """
+    Bank = total hours worked since the first day this year with data,
+    minus weekdays elapsed × daily_target from that same start date.
+    Sick days without a manual entry count against you.
+    Returns 0.0 if there is no data yet this year.
+    """
+    start = first_data_date(complete_sessions, active_sessions, all_manual, now)
+    if start is None:
+        return 0.0
+    expected = weekdays_elapsed(start, now.date() + timedelta(days=1)) * daily_target
     worked = sessions_hours_in_window(
         complete_sessions, active_sessions, all_manual,
-        datetime.combine(tracking_start, datetime.min.time()),
+        datetime.combine(start, datetime.min.time()),
         now, now,
     )
     return worked - expected
