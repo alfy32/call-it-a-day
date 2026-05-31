@@ -324,6 +324,130 @@
     .gap-line  { flex: 1; height: 1px; background: var(--border); }
     .gap-label { font-size: 11px; color: var(--text-3); font-family: var(--font-ui); white-space: nowrap; }
     .empty-state { font-size: 13px; color: var(--text-3); padding: 8px 0; }
+    .btn-ghost {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .btn-ghost:hover { color: var(--text-1); border-color: #CBD5E1; }
+
+    /* Add button */
+    .add-btn {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .add-btn:hover { color: var(--indigo); border-color: var(--indigo); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-overlay.hidden { display: none; }
+    .modal {
+      background: var(--surface);
+      border-radius: 12px;
+      width: 400px;
+      max-width: calc(100vw - 48px);
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .modal-title { font-family: var(--font-ui); font-size: 15px; font-weight: 600; color: var(--text-1); }
+    .modal-close { background: none; border: none; color: var(--text-3); font-size: 20px; cursor: pointer; line-height: 1; padding: 2px; }
+    .modal-close:hover { color: var(--text-1); }
+    .type-selector { display: flex; gap: 6px; margin-bottom: 20px; }
+    .type-btn {
+      flex: 1;
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      cursor: pointer;
+      text-align: center;
+    }
+    .type-btn.active { background: var(--indigo); border-color: var(--indigo); color: #fff; }
+    .form-row { display: flex; gap: 10px; margin-bottom: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+    .form-label {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-2);
+    }
+    .form-input {
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--text-1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      background: var(--surface);
+      width: 100%;
+    }
+    .form-input:focus { outline: none; border-color: var(--indigo); }
+    .dur-row { display: flex; align-items: center; gap: 6px; }
+    .dur-input {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--text-1);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      background: var(--surface);
+      width: 64px;
+      text-align: center;
+    }
+    .dur-input:focus { outline: none; border-color: var(--indigo); }
+    .dur-sep { font-size: 13px; color: var(--text-3); font-family: var(--font-ui); }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    .btn-cancel {
+      font-family: var(--font-ui); font-size: 13px; font-weight: 500;
+      color: var(--text-2); border: 1px solid var(--border); background: var(--surface);
+      border-radius: 6px; padding: 7px 16px; cursor: pointer;
+    }
+    .btn-cancel:hover { color: var(--text-1); }
+    .btn-save {
+      font-family: var(--font-ui); font-size: 13px; font-weight: 600;
+      color: #fff; background: var(--indigo); border: none;
+      border-radius: 6px; padding: 7px 16px; cursor: pointer;
+    }
+    .btn-save:hover { background: #4338CA; }
+    .btn-save:disabled { opacity: 0.5; cursor: default; }
+    .form-error { font-size: 12px; color: #DC2626; margin-top: 12px; display: none; }
   </style>
 </head>
 <body>
@@ -340,9 +464,92 @@
   <div class="card" id="weeks-card">
     <div class="card-header">
       <div class="section-header">Weeks</div>
-      <div class="pagination" id="pagination"></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="add-btn" onclick="openModal()" title="Add manual entry">+</button>
+        <div class="pagination" id="pagination"></div>
+      </div>
     </div>
     <div id="weeks-list"><div style="padding:24px;font-size:13px;color:var(--text-3)">Loading…</div></div>
+  </div>
+</div>
+
+<!-- Manual entry modal -->
+<div class="modal-overlay hidden" id="modal-overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add Manual Entry</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="form-row" style="margin-bottom:20px">
+      <div class="form-group">
+        <div class="form-label">Date</div>
+        <input class="form-input" type="date" id="f-date">
+      </div>
+    </div>
+
+    <div class="type-selector">
+      <button class="type-btn active" onclick="setType('range', this)">Time range</button>
+      <button class="type-btn" onclick="setType('start', this)">Start + duration</button>
+      <button class="type-btn" onclick="setType('hours', this)">Hours only</button>
+    </div>
+
+    <div id="field-range">
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Start</div>
+          <input class="form-input" type="time" id="f-start-time">
+        </div>
+        <div class="form-group">
+          <div class="form-label">End</div>
+          <input class="form-input" type="time" id="f-end-time">
+        </div>
+      </div>
+    </div>
+
+    <div id="field-start" style="display:none">
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Start</div>
+          <input class="form-input" type="time" id="f-start-time2">
+        </div>
+        <div class="form-group">
+          <div class="form-label">Duration</div>
+          <div class="dur-row">
+            <input class="dur-input" type="number" id="f-dur-h" min="0" max="23" placeholder="0">
+            <span class="dur-sep">h</span>
+            <input class="dur-input" type="number" id="f-dur-m" min="0" max="59" placeholder="0">
+            <span class="dur-sep">m</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="field-hours" style="display:none">
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Duration</div>
+          <div class="dur-row">
+            <input class="dur-input" type="number" id="f-hours-h" min="0" max="23" placeholder="0">
+            <span class="dur-sep">h</span>
+            <input class="dur-input" type="number" id="f-hours-m" min="0" max="59" placeholder="0">
+            <span class="dur-sep">m</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="form-label">Note <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text-3)">(optional)</span></div>
+      <input class="form-input" type="text" id="f-note" placeholder="e.g. on-call coverage">
+    </div>
+
+    <div class="form-error" id="form-error"></div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-save" id="btn-save" onclick="saveEntry()">Add</button>
+    </div>
   </div>
 </div>
 
@@ -523,11 +730,15 @@ function renderDaySessions(day) {
       if (m.start_at && m.end_at) timeStr = `${fmtTime(m.start_at)} – ${fmtTime(m.end_at)}`;
       else if (m.start_at) timeStr = `${fmtTime(m.start_at)} – ?`;
       else timeStr = '<span style="color:var(--text-3);font-style:italic">no time specified</span>';
-      html += `<div class="session-row">
+      html += `<div class="session-row" id="manual-${m.id}">
         <span class="s-time">${timeStr}</span>
         <span class="s-computer">${m.note || ''}</span>
         <span class="s-dur">${fmt(m.hours_total)}</span>
-        <span class="manual-tag">manual</span>
+        <span style="display:flex;align-items:center;gap:6px">
+          <span class="manual-tag">manual</span>
+          <button class="btn-ghost" style="padding:2px 7px;font-size:13px;line-height:1"
+            onclick="deleteManual(${m.id}, '${m.date}')">×</button>
+        </span>
       </div>`;
     }
   }
@@ -700,6 +911,143 @@ async function toggleWork(sessionId, btn) {
     btn.disabled = false;
   }
 }
+
+// ── Manual entry modal ─────────────────────────────────────────────────────
+
+let currentType = 'range';
+
+function defaultDate() {
+  if (openDay) return openDay.split('/')[1];
+  const today = new Date().toISOString().slice(0,10);
+  if (openWeek) {
+    const ws = new Date(openWeek + 'T00:00:00');
+    const we = new Date(ws); we.setDate(we.getDate() + 6);
+    if (openWeek <= today && today <= we.toISOString().slice(0,10)) return today;
+    return openWeek; // Monday of that week
+  }
+  return today;
+}
+
+function openModal() {
+  document.getElementById('f-date').value = defaultDate();
+  document.getElementById('f-start-time').value = '';
+  document.getElementById('f-end-time').value = '';
+  document.getElementById('f-start-time2').value = '';
+  document.getElementById('f-dur-h').value = '';
+  document.getElementById('f-dur-m').value = '';
+  document.getElementById('f-hours-h').value = '';
+  document.getElementById('f-hours-m').value = '';
+  document.getElementById('f-note').value = '';
+  document.getElementById('form-error').style.display = 'none';
+  document.getElementById('btn-save').disabled = false;
+  setType('range', document.querySelector('.type-btn'));
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+
+function overlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+function setType(type, btn) {
+  currentType = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('field-range').style.display = type === 'range' ? '' : 'none';
+  document.getElementById('field-start').style.display = type === 'start' ? '' : 'none';
+  document.getElementById('field-hours').style.display = type === 'hours' ? '' : 'none';
+  document.getElementById('form-error').style.display = 'none';
+}
+
+function durToHours(hEl, mEl) {
+  return (parseInt(hEl.value) || 0) + (parseInt(mEl.value) || 0) / 60;
+}
+
+function dateToWeekStart(dateStr) {
+  const d = new Date(dateStr + 'T00:00:00');
+  const offset = d.getDay() === 0 ? -6 : 1 - d.getDay();
+  d.setDate(d.getDate() + offset);
+  return d.toISOString().slice(0,10);
+}
+
+async function refreshWeek(weekStart) {
+  delete weekCache[weekStart];
+  if (openWeek === weekStart) {
+    const res = await fetch(`/api/summary/week/${weekStart}`);
+    weekCache[weekStart] = await res.json();
+  }
+  renderWeeks();
+}
+
+async function saveEntry() {
+  const errorEl = document.getElementById('form-error');
+  const saveBtn = document.getElementById('btn-save');
+  errorEl.style.display = 'none';
+
+  const date = document.getElementById('f-date').value;
+  if (!date) { showError('Select a date.'); return; }
+
+  let body = { date };
+  const note = document.getElementById('f-note').value.trim();
+  if (note) body.note = note;
+
+  if (currentType === 'range') {
+    const start = document.getElementById('f-start-time').value;
+    const end = document.getElementById('f-end-time').value;
+    if (!start || !end) { showError('Enter both a start and end time.'); return; }
+    if (end <= start) { showError('End time must be after start time.'); return; }
+    body.start_at = `${date}T${start}:00`;
+    body.end_at   = `${date}T${end}:00`;
+  } else if (currentType === 'start') {
+    const start = document.getElementById('f-start-time2').value;
+    const hours = durToHours(document.getElementById('f-dur-h'), document.getElementById('f-dur-m'));
+    if (!start) { showError('Enter a start time.'); return; }
+    if (hours <= 0) { showError('Enter a duration.'); return; }
+    body.start_at = `${date}T${start}:00`;
+    body.hours = Math.round(hours * 100) / 100;
+  } else {
+    const hours = durToHours(document.getElementById('f-hours-h'), document.getElementById('f-hours-m'));
+    if (hours <= 0) { showError('Enter a duration.'); return; }
+    body.hours = Math.round(hours * 100) / 100;
+  }
+
+  saveBtn.disabled = true;
+  try {
+    const res = await fetch('/api/manual', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      showError(err.detail || 'Something went wrong.');
+      return;
+    }
+    closeModal();
+    await refreshWeek(dateToWeekStart(date));
+  } catch (e) {
+    showError('Could not reach the server.');
+  } finally {
+    saveBtn.disabled = false;
+  }
+}
+
+async function deleteManual(entryId, date) {
+  if (!confirm('Remove this manual entry?')) return;
+  await fetch(`/api/manual/${entryId}`, { method: 'DELETE' });
+  await refreshWeek(dateToWeekStart(date));
+}
+
+function showError(msg) {
+  const el = document.getElementById('form-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// ── Session work toggle ────────────────────────────────────────────────────
 
 async function init() {
   const [settingsRes, weeklyRes] = await Promise.all([
