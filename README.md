@@ -6,60 +6,54 @@ Log in to your computer and it tracks itself. No timers, no manual start/stop. A
 
 ---
 
-## What's Different from v1
+## How It Works
 
-v1 ([worktime-tracker](https://github.com/alfy32/worktime-tracker)) logged raw login/logout events and reconstructed session state at display time. v2 stores three distinct record types instead:
+Lightweight agents run on each of your computers and watch for screen lock/unlock events. When you unlock, a session starts. When you lock (or shut down), it ends. The server stores those sessions and serves a web UI that tells you where you stand.
 
-| Type | Description |
-|------|-------------|
-| **Active Sessions** | A start with no end — one expected per computer. Extras indicate a missed logout. |
-| **Complete Sessions** | A start and an end. Primary source of truth for work history. |
-| **Manual Entries** | Manually added time blocks for WFH days, travel, exceptions. |
-
-The display layer shows complete sessions as the base, with active sessions layered on top. Active sessions get a distinct callout UI so you can see the live session and dismiss any orphaned ones.
+The dashboard shows your hours for the day, a progress bar toward your daily goal, and when you can stop. Once you've hit your hours it says: *You've earned it. Call it a day.*
 
 ---
 
-## Architecture
+## Running the Server
 
-**Stack:** Python / FastAPI, SQLite, SQLAlchemy — same core as v1.
+Requires Docker.
 
-**Agents:** Lightweight background processes running on each computer. They detect login/logout and screen lock/unlock events, then POST to the server.
+```bash
+docker compose up -d
+```
 
-**Server:** Exposes a REST API and serves the web UI. Runs in Docker.
+The server runs on port **8001** and stores its database at `/var/lib/callitaday/callitaday.db` on the host.
 
-**Storage:** A single SQLite database file, kept outside the container so it survives redeploys.
-
-**Future:** The app may grow beyond a simple local deployment — a hosted multi-user version is a possibility. The architecture is designed to not preclude that.
-
----
-
-## Design
-
-**Name:** Call It a Day
-
-**Tagline:** *Have you worked enough today?*
-
-**Tone:** Quiet, earned, honest. The app doesn't cheer — it confirms. Hitting your hours should feel like a nod, not a party.
-
-**Colors:**
-- Background: `#F8FAFC` (cool white)
-- Primary accent: `#4F46E5` (indigo)
-- Done state: `#059669` (emerald)
-- Text: `#0F172A` / `#64748B` (slate 900 / 500)
-
-**Typography:**
-- UI labels / headings: Plus Jakarta Sans
-- Body / secondary: Inter
-- Time values: JetBrains Mono
-
-**Icon:** Indigo circle with a clock face showing a progress arc that fills as the day completes.
+To change the port, edit `docker-compose.yml`. To move the database, update the `volumes` line.
 
 ---
 
-## Status
+## Setting Up an Agent
 
-Early design phase. Branding and architecture are decided; implementation not yet started.
+### Ubuntu (GNOME)
 
-→ See [BRANDING.md](docs/BRANDING.md) for the full visual guide
-→ See [DESIGN.md](docs/DESIGN.md) for architecture and design decisions
+```bash
+bash agents/ubuntu/install.sh
+```
+
+The installer will ask for your server URL and a name for this computer, then set up a systemd user service that starts automatically with your graphical session.
+
+Logs: `journalctl --user -u callitaday-listener -f`
+
+---
+
+## Configuration
+
+Settings (daily target, weekly target, tracking start date) are available via the web UI or the API:
+
+```
+GET  /api/settings
+PATCH /api/settings
+```
+
+---
+
+## Docs
+
+- [DESIGN.md](docs/DESIGN.md) — architecture, data model, and design decisions
+- [BRANDING.md](docs/BRANDING.md) — visual identity, colors, and typography

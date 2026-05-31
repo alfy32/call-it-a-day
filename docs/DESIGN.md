@@ -86,4 +86,4 @@ Full visual guide: [BRANDING.md](BRANDING.md)
 
 ## Status
 
-Branding, architecture, and UI design decided. Mockups complete at `docs/mockups/`. Implementation not yet started.
+Server, dashboard, weekly view, and Ubuntu agent implemented. Mockups at `docs/mockups/`.
