@@ -168,7 +168,7 @@ def calculate_stop_time(
 ) -> datetime | None:
     today = now.date()
 
-    if today.weekday() == 5:  # Saturday — end of week, no stop time
+    if today.weekday() in (5, 6):  # Saturday/Sunday — no stop time
         return None
 
     adjusted_target = weekly_target - bank_at_week_start

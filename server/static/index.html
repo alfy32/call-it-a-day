@@ -921,7 +921,8 @@ function renderSessions(today) {
 
 function renderHero(today, week) {
   const isDone = today.is_done;
-  const pct = Math.min(100, (today.hours_worked / today.daily_target) * 100);
+  const isWeekend = [0, 6].includes(new Date().getDay());
+  const pct = isWeekend ? 0 : Math.min(100, (today.hours_worked / today.daily_target) * 100);
 
   const heroTime = document.getElementById('hero-time');
   const heroSub = document.getElementById('hero-sub');
@@ -929,11 +930,14 @@ function renderHero(today, week) {
   const doneRow = document.getElementById('hero-done-row');
 
   heroTime.textContent = fmt(today.hours_worked);
-  heroTime.className = 'hero-time' + (isDone ? ' done' : '');
+  heroTime.className = 'hero-time' + (!isWeekend && isDone ? ' done' : '');
   fill.style.width = pct + '%';
-  fill.className = 'progress-fill' + (isDone ? ' done' : '');
+  fill.className = 'progress-fill' + (!isWeekend && isDone ? ' done' : '');
 
-  if (isDone) {
+  if (isWeekend) {
+    heroSub.textContent = today.hours_worked > 0 ? 'logged today' : '';
+    doneRow.style.display = 'none';
+  } else if (isDone) {
     heroSub.textContent = `${fmt(today.daily_target)} goal reached`;
     doneRow.style.display = 'block';
   } else {
