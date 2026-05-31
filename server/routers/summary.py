@@ -105,7 +105,7 @@ def summary_today(db: Session = Depends(get_db)):
     is_done = hours_worked >= daily_target
 
     # Bank at start of this week
-    week_start = today - timedelta(days=today.weekday())
+    week_start = today - timedelta(days=(today.weekday() + 1) % 7)
     week_start_dt = datetime.combine(week_start, datetime.min.time())
     pre_week_complete = (
         db.query(CompleteSession)
@@ -182,7 +182,7 @@ def summary_week(db: Session = Depends(get_db)):
     now = datetime.now()
     today = now.date()
     cfg = _get_cfg(db)
-    week_start = today - timedelta(days=today.weekday())
+    week_start = today - timedelta(days=(today.weekday() + 1) % 7)
     week_start_dt = datetime.combine(week_start, datetime.min.time())
 
     active = db.query(ActiveSession).all()
@@ -264,7 +264,7 @@ def summary_daily(days: int = 60, db: Session = Depends(get_db)):
 def summary_weekly(weeks: int = 26, db: Session = Depends(get_db)):
     now = datetime.now()
     today = now.date()
-    week_start = today - timedelta(days=today.weekday())
+    week_start = today - timedelta(days=(today.weekday() + 1) % 7)
     active = db.query(ActiveSession).all()
     result = []
     for i in range(weeks - 1, -1, -1):

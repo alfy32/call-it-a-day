@@ -102,8 +102,11 @@ def weekdays_elapsed(start: date, end: date) -> int:
 
 
 def remaining_weekdays_in_week(today: date) -> int:
-    """Count weekdays from today through Friday, inclusive."""
-    return sum(1 for d in range(today.weekday(), 5))
+    """Count Mon–Fri days remaining in the week from today, inclusive."""
+    dow = today.weekday()  # Mon=0 … Sat=5, Sun=6
+    if dow == 6:  # Sunday — start of week, all 5 weekdays ahead
+        return 5
+    return max(0, 5 - dow)
 
 
 def calculate_hours_bank(
@@ -137,7 +140,7 @@ def calculate_stop_time(
 ) -> datetime | None:
     today = now.date()
 
-    if today.weekday() >= 5:
+    if today.weekday() == 5:  # Saturday — end of week, no stop time
         return None
 
     adjusted_target = weekly_target - bank_at_week_start
@@ -148,7 +151,7 @@ def calculate_stop_time(
     pre_today_manual = [m for m in week_manual if m.date < today]
     hours_before_today = sessions_hours_in_window(
         pre_today_complete, pre_today_active, pre_today_manual,
-        datetime.combine(today - timedelta(days=today.weekday()), datetime.min.time()),
+        datetime.combine(today - timedelta(days=(today.weekday() + 1) % 7), datetime.min.time()),
         datetime.combine(today, datetime.min.time()),
         now,
     )

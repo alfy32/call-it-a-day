@@ -969,8 +969,7 @@ function durToHours(hEl, mEl) {
 
 function dateToWeekStart(dateStr) {
   const d = new Date(dateStr + 'T00:00:00');
-  const offset = d.getDay() === 0 ? -6 : 1 - d.getDay();
-  d.setDate(d.getDate() + offset);
+  d.setDate(d.getDate() - d.getDay()); // getDay(): Sun=0 … Sat=6
   return d.toISOString().slice(0,10);
 }
 
