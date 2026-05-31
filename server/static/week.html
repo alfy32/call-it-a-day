@@ -486,12 +486,26 @@
     </div>
 
     <div class="type-selector">
-      <button class="type-btn active" onclick="setType('range', this)">Time range</button>
+      <button class="type-btn active" onclick="setType('hours', this)">Hours only</button>
+      <button class="type-btn" onclick="setType('range', this)">Time range</button>
       <button class="type-btn" onclick="setType('start', this)">Start + duration</button>
-      <button class="type-btn" onclick="setType('hours', this)">Hours only</button>
     </div>
 
-    <div id="field-range">
+    <div id="field-hours">
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">Duration</div>
+          <div class="dur-row">
+            <input class="dur-input" type="number" id="f-hours-h" min="0" max="23" placeholder="0">
+            <span class="dur-sep">h</span>
+            <input class="dur-input" type="number" id="f-hours-m" min="0" max="59" placeholder="0">
+            <span class="dur-sep">m</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="field-range" style="display:none">
       <div class="form-row">
         <div class="form-group">
           <div class="form-label">Start</div>
@@ -516,20 +530,6 @@
             <input class="dur-input" type="number" id="f-dur-h" min="0" max="23" placeholder="0">
             <span class="dur-sep">h</span>
             <input class="dur-input" type="number" id="f-dur-m" min="0" max="59" placeholder="0">
-            <span class="dur-sep">m</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="field-hours" style="display:none">
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">Duration</div>
-          <div class="dur-row">
-            <input class="dur-input" type="number" id="f-hours-h" min="0" max="23" placeholder="0">
-            <span class="dur-sep">h</span>
-            <input class="dur-input" type="number" id="f-hours-m" min="0" max="59" placeholder="0">
             <span class="dur-sep">m</span>
           </div>
         </div>
@@ -938,7 +938,7 @@ function openModal() {
   document.getElementById('f-note').value = '';
   document.getElementById('form-error').style.display = 'none';
   document.getElementById('btn-save').disabled = false;
-  setType('range', document.querySelector('.type-btn'));
+  setType('hours', document.querySelector('.type-btn'));
   document.getElementById('modal-overlay').classList.remove('hidden');
 }
 
