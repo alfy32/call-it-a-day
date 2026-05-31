@@ -299,7 +299,7 @@
     /* Weekly chart */
     .week-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(7, 1fr);
       gap: 8px;
     }
     .day-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
@@ -339,8 +339,10 @@
       letter-spacing: 0.05em;
     }
     .day-label.today { color: var(--indigo); font-weight: 700; }
+    .day-label.weekend { color: var(--text-3); }
     .day-hours { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
     .day-hours.today { color: var(--text-1); font-weight: 500; }
+    .day-bar-fill.weekend { opacity: 0.35; }
 
     /* Empty state */
     .empty-state {
@@ -945,22 +947,22 @@ function renderWeekChart(week, dailyTarget) {
   for (const day of week.daily_breakdown) {
     const d = new Date(day.date + 'T00:00:00');
     const dayOfWeek = d.getDay();
-    if (dayOfWeek === 0 || dayOfWeek === 6) continue; // skip weekends
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
     const isToday = day.is_today;
-    const goalMet = day.hours >= dailyTarget;
+    const goalMet = !isWeekend && day.hours >= dailyTarget;
     const heightPct = Math.min(100, (day.hours / MAX_HOURS) * 100);
 
     const col = document.createElement('div');
     col.className = 'day-col';
     col.innerHTML = `
       <div class="day-bar-wrap">
-        <div class="goal-line"></div>
+        ${isWeekend ? '' : '<div class="goal-line"></div>'}
         <div class="day-bar-track">
-          <div class="day-bar-fill${isToday ? ' today' : ''}${goalMet ? ' goal-met' : ''}"
+          <div class="day-bar-fill${isToday ? ' today' : ''}${goalMet ? ' goal-met' : ''}${isWeekend ? ' weekend' : ''}"
             style="height:${heightPct}%"></div>
         </div>
       </div>
-      <div class="day-label${isToday ? ' today' : ''}">${DAY_NAMES[dayOfWeek]}</div>
+      <div class="day-label${isToday ? ' today' : ''}${isWeekend ? ' weekend' : ''}">${DAY_NAMES[dayOfWeek]}</div>
       <div class="day-hours${isToday ? ' today' : ''}">${day.hours > 0 ? fmt(day.hours) : '—'}</div>`;
     grid.appendChild(col);
   }
