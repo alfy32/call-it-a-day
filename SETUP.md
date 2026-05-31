@@ -12,6 +12,14 @@ The server runs on port **8001** and stores its database at `/var/lib/callitaday
 
 To change the port, edit `docker-compose.yml`. To move the database, update the `volumes` line.
 
+**To update to the latest version:**
+
+```bash
+bash scripts/update.sh
+```
+
+This pulls the latest code and rebuilds the container. The database is untouched.
+
 ---
 
 ## Setting Up an Agent
