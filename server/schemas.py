@@ -22,11 +22,17 @@ class ActiveSessionOut(BaseModel):
     computer: str
     started_at: datetime
     duration_hours: float
+    is_work: bool
     is_flagged_duration: bool
     is_flagged_duplicate: bool
     note: str | None = None
 
     model_config = {"from_attributes": True}
+
+
+class PatchActiveSession(BaseModel):
+    is_work: bool | None = None
+    note: str | None = None
 
 
 class CompleteSessionOut(BaseModel):

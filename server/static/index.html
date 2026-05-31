@@ -860,7 +860,8 @@ function renderSessions(today) {
           </span>
           <span class="session-computer">${s.computer}</span>
           <span class="dur">${fmt(s.duration_hours)}</span>
-          <span></span>`;
+          <button class="work-btn ${s.is_work ? 'is-work' : 'is-nonwork'}"
+            onclick="toggleActiveWork(${s.id}, this)">Work</button>`;
       }
       list.appendChild(row);
       continue;
@@ -1042,6 +1043,21 @@ function openNote(noteRowId, id, type) {
     if (e.key === 'Enter') input.blur();
     if (e.key === 'Escape') { input.value = current; input.blur(); }
   });
+}
+
+async function toggleActiveWork(sessionId, btn) {
+  const isWork = btn.classList.contains('is-work');
+  btn.disabled = true;
+  try {
+    await fetch(`/api/active_sessions/${sessionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_work: !isWork }),
+    });
+    refresh();
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 async function toggleWork(sessionId, btn) {

@@ -722,7 +722,8 @@ function renderDaySessions(day) {
         <span class="s-time">${fmtTime(s.started_at)} – now <span class="live-badge">Live</span></span>
         <span class="s-computer">${s.computer}</span>
         <span class="s-dur">${fmt(s.duration_hours)}</span>
-        <span></span>
+        <button class="work-btn ${s.is_work ? 'is-work' : 'is-nonwork'}"
+          onclick="toggleActiveWork(${s.id}, this)">Work</button>
       </div>`;
       continue;
     }
@@ -1118,6 +1119,22 @@ function openNote(noteRowId, id, type) {
     if (e.key === 'Enter') input.blur();
     if (e.key === 'Escape') { input.value = current; input.blur(); }
   });
+}
+
+async function toggleActiveWork(sessionId, btn) {
+  const isWork = btn.classList.contains('is-work');
+  btn.disabled = true;
+  try {
+    await fetch(`/api/active_sessions/${sessionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_work: !isWork }),
+    });
+    btn.classList.toggle('is-work', !isWork);
+    btn.classList.toggle('is-nonwork', isWork);
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 // ── Session work toggle ────────────────────────────────────────────────────

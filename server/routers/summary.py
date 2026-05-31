@@ -42,6 +42,7 @@ def _active_session_out(session: ActiveSession, now: datetime, computers_with_mu
         computer=session.computer,
         started_at=session.started_at,
         duration_hours=round(min(raw_hours, ACTIVE_SESSION_CAP_HOURS), 2),
+        is_work=session.is_work,
         is_flagged_duration=is_dur_flagged,
         is_flagged_duplicate=session.computer in computers_with_multiple,
         note=session.note,

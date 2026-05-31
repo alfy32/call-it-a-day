@@ -10,6 +10,7 @@ class ActiveSession(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     computer: Mapped[str] = mapped_column(String, nullable=False)
     started_at: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    is_work: Mapped[bool] = mapped_column(Boolean, default=True)
     note: Mapped[str | None] = mapped_column(String, nullable=True)
 
 

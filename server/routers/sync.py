@@ -41,7 +41,7 @@ def sync(request: SyncRequest, db: Session = Depends(get_db)):
             computer=active.computer,
             started_at=active.started_at,
             ended_at=request.timestamp,
-            is_work=True,
+            is_work=active.is_work,
             note=active.note,
         ))
         db.delete(active)

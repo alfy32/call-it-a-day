@@ -20,6 +20,18 @@ bash scripts/update.sh
 
 This pulls the latest code and rebuilds the container. The database is untouched.
 
+**After updating, run migrations if the schema changed:**
+
+```bash
+python3 scripts/migrate.py
+```
+
+The script checks what's already applied and only adds what's missing — safe to run every time. Pass a custom path if your database isn't at the default location:
+
+```bash
+python3 scripts/migrate.py /path/to/callitaday.db
+```
+
 ---
 
 ## Setting Up an Agent

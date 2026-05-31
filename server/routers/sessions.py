@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models import ActiveSession, CompleteSession
-from schemas import SessionsResponse, CompleteSessionOut, PatchCompleteSession
+from schemas import SessionsResponse, CompleteSessionOut, PatchCompleteSession, PatchActiveSession
 
 router = APIRouter()
 
@@ -59,6 +59,18 @@ def delete_session(session_id: int, db: Session = Depends(get_db)):
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     db.delete(session)
+    db.commit()
+
+
+@router.patch("/api/active_sessions/{session_id}", status_code=204)
+def patch_active_session(session_id: int, patch: PatchActiveSession, db: Session = Depends(get_db)):
+    session = db.query(ActiveSession).filter(ActiveSession.id == session_id).first()
+    if not session:
+        raise HTTPException(status_code=404, detail="Active session not found")
+    if patch.is_work is not None:
+        session.is_work = patch.is_work
+    if patch.note is not None:
+        session.note = patch.note
     db.commit()
 
 
