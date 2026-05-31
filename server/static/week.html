@@ -94,8 +94,12 @@
     .pagination {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
+      padding: 14px 24px;
+      border-top: 1px solid var(--border);
     }
+    .pagination:empty { display: none; }
     .page-btn {
       font-family: var(--font-ui);
       font-size: 12px;
@@ -479,12 +483,10 @@
   <div class="card" id="weeks-card">
     <div class="card-header">
       <div class="section-header">Weeks</div>
-      <div style="display:flex;align-items:center;gap:10px">
-        <button class="add-btn" onclick="openModal()" title="Add manual entry">+</button>
-        <div class="pagination" id="pagination"></div>
-      </div>
+      <button class="add-btn" onclick="openModal()" title="Add manual entry">+</button>
     </div>
     <div id="weeks-list"><div style="padding:24px;font-size:13px;color:var(--text-3)">Loading…</div></div>
+    <div class="pagination" id="pagination"></div>
   </div>
 </div>
 
@@ -571,7 +573,7 @@
 <script>
 const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const PER_PAGE = 10;
+const PER_PAGE = 15;
 
 let cfg = { daily_target: 8, weekly_target: 40 };
 let allWeeks = [];
