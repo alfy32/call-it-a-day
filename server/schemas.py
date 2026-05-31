@@ -52,6 +52,14 @@ class PatchCompleteSession(BaseModel):
     note: str | None = None
 
 
+class CompleteSessionIn(BaseModel):
+    computer: str
+    started_at: datetime
+    ended_at: datetime
+    is_work: bool = True
+    note: str | None = None
+
+
 # --- Manual Entries ---
 
 class ManualEntryOut(BaseModel):

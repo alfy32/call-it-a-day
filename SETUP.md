@@ -46,6 +46,12 @@ The installer will ask for your server URL and a name for this computer, then se
 
 Logs: `journalctl --user -u callitaday-listener -f`
 
+To remove the agent:
+
+```bash
+bash agents/ubuntu/uninstall.sh
+```
+
 ### Windows
 
 Run PowerShell as Administrator, then:
@@ -53,6 +59,13 @@ Run PowerShell as Administrator, then:
 ```powershell
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\agents\windows\install.ps1
+```
+
+To remove the agent, run PowerShell as Administrator, then:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\agents\windows\uninstall.ps1
 ```
 
 The installer will ask for your server URL and a name for this computer, then register two Task Scheduler tasks:

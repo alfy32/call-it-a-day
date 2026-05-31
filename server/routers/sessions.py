@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from models import ActiveSession, CompleteSession
-from schemas import SessionsResponse, CompleteSessionOut, PatchCompleteSession, PatchActiveSession
+from schemas import SessionsResponse, CompleteSessionOut, PatchCompleteSession, PatchActiveSession, CompleteSessionIn
 
 router = APIRouter()
 
@@ -19,6 +19,21 @@ def _to_out(s: CompleteSession) -> CompleteSessionOut:
         is_work=s.is_work,
         note=s.note,
     )
+
+
+@router.post("/api/sessions", response_model=CompleteSessionOut, status_code=201)
+def create_session(body: CompleteSessionIn, db: Session = Depends(get_db)):
+    session = CompleteSession(
+        computer=body.computer,
+        started_at=body.started_at,
+        ended_at=body.ended_at,
+        is_work=body.is_work,
+        note=body.note,
+    )
+    db.add(session)
+    db.commit()
+    db.refresh(session)
+    return _to_out(session)
 
 
 @router.get("/api/sessions", response_model=SessionsResponse)
