@@ -6,12 +6,13 @@
     Sets up config and registers Task Scheduler tasks.
 #>
 
-$SCRIPT_DIR   = Split-Path -Parent (Resolve-Path $MyInvocation.MyCommand.Path)
-$REPORT_PS1   = Join-Path $SCRIPT_DIR "report-event.ps1"
-$CONFIG_DIR   = Join-Path $env:APPDATA "callitaday"
-$CONFIG_PATH  = Join-Path $CONFIG_DIR "config.json"
-$TASK_START   = "CallItaDay-Start"
-$TASK_END     = "CallItaDay-End"
+$SCRIPT_DIR    = Split-Path -Parent (Resolve-Path $MyInvocation.MyCommand.Path)
+$REPORT_PS1    = Join-Path $SCRIPT_DIR "report-event.ps1"
+$CONFIG_DIR    = Join-Path $env:APPDATA "callitaday"
+$CONFIG_PATH   = Join-Path $CONFIG_DIR "config.json"
+$TASK_LOGON    = "CallItaDay-Logon"
+$TASK_UNLOCK   = "CallItaDay-Unlock"
+$TASK_END      = "CallItaDay-End"
 
 # Load existing config for re-run UX
 $currentUrl  = ""
@@ -52,22 +53,55 @@ New-Item -ItemType Directory -Force -Path $CONFIG_DIR | Out-Null
     ConvertTo-Json | Set-Content -Path $CONFIG_PATH -Encoding UTF8
 Write-Host "Wrote $CONFIG_PATH"
 
-# --- Task: CallItaDay-Start ---
-# Fires on screen unlock and first logon after boot
-$startTaskXml = @"
+# --- Task: CallItaDay-Logon ---
+# Fires on first logon after boot. Posts end then start so any session
+# orphaned by a missed shutdown end event is closed before starting fresh.
+$logonTaskXml = @"
 <?xml version="1.0" encoding="UTF-16"?>
 <Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
   <RegistrationInfo>
-    <Description>Call It a Day - post start event on unlock/logon</Description>
+    <Description>Call It a Day - recover missed shutdown end, then post start on logon</Description>
+  </RegistrationInfo>
+  <Triggers>
+    <LogonTrigger>
+      <Enabled>true</Enabled>
+    </LogonTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <LogonType>InteractiveToken</LogonType>
+      <RunLevel>LeastPrivilege</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <ExecutionTimeLimit>PT1M</ExecutionTimeLimit>
+    <Enabled>true</Enabled>
+  </Settings>
+  <Actions>
+    <Exec>
+      <Command>powershell.exe</Command>
+      <Arguments>-NoProfile -WindowStyle Hidden -NonInteractive -ExecutionPolicy Bypass -File "$REPORT_PS1" -Action logon</Arguments>
+    </Exec>
+  </Actions>
+</Task>
+"@
+
+# --- Task: CallItaDay-Unlock ---
+# Fires on screen unlock. Just posts start — the end was already recorded on lock.
+$unlockTaskXml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.4" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <RegistrationInfo>
+    <Description>Call It a Day - post start event on screen unlock</Description>
   </RegistrationInfo>
   <Triggers>
     <SessionStateChangeTrigger>
       <Enabled>true</Enabled>
       <StateChange>SessionUnlock</StateChange>
     </SessionStateChangeTrigger>
-    <LogonTrigger>
-      <Enabled>true</Enabled>
-    </LogonTrigger>
   </Triggers>
   <Principals>
     <Principal id="Author">
@@ -137,17 +171,21 @@ $endTaskXml = @"
 </Task>
 "@
 
-foreach ($name in @($TASK_START, $TASK_END)) {
+# Remove old tasks (including legacy CallItaDay-Start name)
+foreach ($name in @($TASK_LOGON, $TASK_UNLOCK, $TASK_END, "CallItaDay-Start")) {
     Unregister-ScheduledTask -TaskName $name -Confirm:$false -ErrorAction SilentlyContinue
 }
-Register-ScheduledTask -TaskName $TASK_START -Xml $startTaskXml -Force | Out-Null
-Register-ScheduledTask -TaskName $TASK_END   -Xml $endTaskXml   -Force | Out-Null
+Register-ScheduledTask -TaskName $TASK_LOGON  -Xml $logonTaskXml  -Force | Out-Null
+Register-ScheduledTask -TaskName $TASK_UNLOCK -Xml $unlockTaskXml -Force | Out-Null
+Register-ScheduledTask -TaskName $TASK_END    -Xml $endTaskXml    -Force | Out-Null
 
 Write-Host "Tasks registered:"
-Write-Host "  $TASK_START - fires on unlock and logon"
-Write-Host "  $TASK_END   - fires on lock, logoff, and shutdown"
+Write-Host "  $TASK_LOGON  - fires on logon (posts end+start to recover missed shutdowns)"
+Write-Host "  $TASK_UNLOCK - fires on screen unlock (posts start)"
+Write-Host "  $TASK_END    - fires on lock, logoff, and shutdown (posts end)"
 Write-Host ""
 Write-Host "Done."
 Write-Host "To check task status:"
-Write-Host "  Get-ScheduledTask -TaskName $TASK_START | Get-ScheduledTaskInfo"
-Write-Host "  Get-ScheduledTask -TaskName $TASK_END   | Get-ScheduledTaskInfo"
+Write-Host "  Get-ScheduledTask -TaskName $TASK_LOGON  | Get-ScheduledTaskInfo"
+Write-Host "  Get-ScheduledTask -TaskName $TASK_UNLOCK | Get-ScheduledTaskInfo"
+Write-Host "  Get-ScheduledTask -TaskName $TASK_END    | Get-ScheduledTaskInfo"
