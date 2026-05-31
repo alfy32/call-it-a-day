@@ -218,15 +218,34 @@
     /* Session list */
     .session-list { display: flex; flex-direction: column; }
 
+    .session-wrap { border-bottom: 1px solid var(--border); }
+    .session-wrap:last-child { border-bottom: none; }
+
     .session-row {
       display: grid;
       grid-template-columns: 1fr auto auto auto;
       align-items: center;
       gap: 12px;
-      padding: 11px 0;
-      border-bottom: 1px solid var(--border);
+      padding: 11px 0 8px;
+      border-bottom: none;
     }
-    .session-row:last-child { border-bottom: none; }
+
+    .session-note-row { display: none; padding-bottom: 10px; }
+    .session-note-row.visible { display: block; }
+    .session-note-text { font-size: 12px; color: var(--text-2); }
+    .session-note-input {
+      font-family: var(--font-body);
+      font-size: 12px;
+      color: var(--text-2);
+      background: none;
+      border: none;
+      border-bottom: 1px solid var(--indigo);
+      outline: none;
+      width: 100%;
+      padding: 0;
+    }
+    .note-trigger { cursor: pointer; }
+    .note-trigger:hover { opacity: 0.75; }
 
     .session-row.live {
       background: var(--indigo-dim);
@@ -343,28 +362,6 @@
     .day-hours { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
     .day-hours.today { color: var(--text-1); font-weight: 500; }
     .day-bar-fill.weekend { opacity: 0.35; }
-
-    /* Session note */
-    .session-meta { display: flex; flex-direction: column; gap: 2px; }
-    .session-note {
-      font-size: 12px;
-      color: var(--text-2);
-      cursor: pointer;
-    }
-    .session-note.empty { color: var(--text-3); font-style: italic; }
-    .session-note:hover { color: var(--indigo); }
-    .note-input {
-      font-family: var(--font-body);
-      font-size: 12px;
-      color: var(--text-2);
-      background: none;
-      border: none;
-      border-bottom: 1px solid var(--indigo);
-      outline: none;
-      padding: 0;
-      min-width: 120px;
-      width: 100%;
-    }
 
     /* Empty state */
     .empty-state {
@@ -872,19 +869,20 @@ function renderSessions(today) {
     if (item.kind === 'complete') {
       const s = item.data;
       const dur = (new Date(s.ended_at) - new Date(s.started_at)) / 3600000;
-      const row = document.createElement('div');
-      row.className = 'session-row' + (s.is_work ? '' : ' non-work');
-      row.innerHTML = `
-        <span class="time-range">${fmtTime(s.started_at)} – ${fmtTime(s.ended_at)}</span>
-        <div class="session-meta">
-          <span class="session-computer">${s.computer}</span>
-          <span class="session-note${s.note ? '' : ' empty'}"
-            onclick="editNote(this, ${s.id}, 'session')">${esc(s.note || 'add note…')}</span>
+      const nid = `note-s${s.id}`;
+      const wrap = document.createElement('div');
+      wrap.className = 'session-wrap';
+      wrap.innerHTML = `
+        <div class="session-row${s.is_work ? '' : ' non-work'}">
+          <span class="time-range note-trigger" onclick="openNote('${nid}',${s.id},'session')">${fmtTime(s.started_at)} – ${fmtTime(s.ended_at)}</span>
+          <span class="session-computer note-trigger" onclick="openNote('${nid}',${s.id},'session')">${s.computer}</span>
+          <span class="dur">${fmt(dur)}</span>
+          <button class="work-btn ${s.is_work ? 'is-work' : 'is-nonwork'}" onclick="toggleWork(${s.id},this)">Work</button>
         </div>
-        <span class="dur">${fmt(dur)}</span>
-        <button class="work-btn ${s.is_work ? 'is-work' : 'is-nonwork'}"
-          onclick="toggleWork(${s.id}, this)">Work</button>`;
-      list.appendChild(row);
+        <div class="session-note-row${s.note ? ' visible' : ''}" id="${nid}">
+          ${s.note ? `<span class="session-note-text">${esc(s.note)}</span>` : ''}
+        </div>`;
+      list.appendChild(wrap);
       continue;
     }
 
@@ -898,19 +896,24 @@ function renderSessions(today) {
       } else {
         timeStr = `<span style="color:var(--text-3);font-style:italic">no time specified</span>`;
       }
-      const row = document.createElement('div');
-      row.className = 'session-row';
-      row.innerHTML = `
-        <span class="time-range">${timeStr}</span>
-        <span class="session-note${m.note ? '' : ' empty'}"
-          onclick="editNote(this, ${m.id}, 'manual')">${esc(m.note || 'add note…')}</span>
-        <span class="dur">${fmt(m.hours_total)}</span>
-        <span style="display:flex;align-items:center;gap:6px">
-          <span class="manual-tag">manual</span>
-          <button class="btn-ghost" style="padding:2px 7px;font-size:13px;line-height:1"
-            onclick="deleteManual(${m.id}, this)">×</button>
-        </span>`;
-      list.appendChild(row);
+      const nid = `note-m${m.id}`;
+      const wrap = document.createElement('div');
+      wrap.className = 'session-wrap';
+      wrap.innerHTML = `
+        <div class="session-row">
+          <span class="time-range note-trigger" onclick="openNote('${nid}',${m.id},'manual')">${timeStr}</span>
+          <span class="session-computer note-trigger" onclick="openNote('${nid}',${m.id},'manual')"></span>
+          <span class="dur">${fmt(m.hours_total)}</span>
+          <span style="display:flex;align-items:center;gap:6px">
+            <span class="manual-tag">manual</span>
+            <button class="btn-ghost" style="padding:2px 7px;font-size:13px;line-height:1"
+              onclick="deleteManual(${m.id},this)">×</button>
+          </span>
+        </div>
+        <div class="session-note-row${m.note ? ' visible' : ''}" id="${nid}">
+          ${m.note ? `<span class="session-note-text">${esc(m.note)}</span>` : ''}
+        </div>`;
+      list.appendChild(wrap);
     }
   }
 }
@@ -999,24 +1002,32 @@ function esc(str) {
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function editNote(span, id, type) {
-  if (span.querySelector('input')) return;
-  const current = span.classList.contains('empty') ? '' : span.textContent;
+function openNote(noteRowId, id, type) {
+  const noteRow = document.getElementById(noteRowId);
+  if (!noteRow || noteRow.querySelector('input')) return;
+  const current = noteRow.querySelector('.session-note-text')?.textContent || '';
+
   const input = document.createElement('input');
-  input.className = 'note-input';
+  input.className = 'session-note-input';
   input.value = current;
   input.placeholder = 'Add note…';
-  span.replaceWith(input);
+  noteRow.innerHTML = '';
+  noteRow.appendChild(input);
+  noteRow.classList.add('visible');
   input.focus();
 
   async function save() {
     const newNote = input.value.trim() || null;
-    const newSpan = document.createElement('span');
-    newSpan.className = 'session-note' + (newNote ? '' : ' empty');
-    newSpan.textContent = newNote || 'add note…';
-    newSpan.onclick = () => editNote(newSpan, id, type);
-    input.replaceWith(newSpan);
-
+    noteRow.innerHTML = '';
+    if (newNote) {
+      noteRow.classList.add('visible');
+      const span = document.createElement('span');
+      span.className = 'session-note-text';
+      span.textContent = newNote;
+      noteRow.appendChild(span);
+    } else {
+      noteRow.classList.remove('visible');
+    }
     const url = type === 'session' ? `/api/sessions/${id}` : `/api/manual/${id}`;
     await fetch(url, {
       method: 'PATCH',
