@@ -62,6 +62,8 @@ def sessions_hours_in_window(
             clipped.append((cs, ce))
 
     for s in active_sessions:
+        if not s.is_work:
+            continue
         raw_end = s.started_at + timedelta(hours=ACTIVE_SESSION_CAP_HOURS)
         effective_end = min(now, raw_end)
         cs = max(s.started_at, window_start)
