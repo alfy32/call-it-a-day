@@ -880,7 +880,7 @@ function renderSessions(today) {
           <button class="work-btn ${s.is_work ? 'is-work' : 'is-nonwork'}" onclick="toggleWork(${s.id},this)">Work</button>
         </div>
         <div class="session-note-row${s.note ? ' visible' : ''}" id="${nid}">
-          ${s.note ? `<span class="session-note-text">${esc(s.note)}</span>` : ''}
+          ${s.note ? `<span class="session-note-text note-trigger" onclick="openNote('${nid}',${s.id},'session')">${esc(s.note)}</span>` : ''}
         </div>`;
       list.appendChild(wrap);
       continue;
@@ -911,7 +911,7 @@ function renderSessions(today) {
           </span>
         </div>
         <div class="session-note-row${m.note ? ' visible' : ''}" id="${nid}">
-          ${m.note ? `<span class="session-note-text">${esc(m.note)}</span>` : ''}
+          ${m.note ? `<span class="session-note-text note-trigger" onclick="openNote('${nid}',${m.id},'manual')">${esc(m.note)}</span>` : ''}
         </div>`;
       list.appendChild(wrap);
     }
@@ -1022,8 +1022,9 @@ function openNote(noteRowId, id, type) {
     if (newNote) {
       noteRow.classList.add('visible');
       const span = document.createElement('span');
-      span.className = 'session-note-text';
+      span.className = 'session-note-text note-trigger';
       span.textContent = newNote;
+      span.onclick = () => openNote(noteRowId, id, type);
       noteRow.appendChild(span);
     } else {
       noteRow.classList.remove('visible');
