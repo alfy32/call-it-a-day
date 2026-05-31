@@ -863,7 +863,7 @@ function renderWeekPanel(ws) {
     }
 
     const status = dayStatus(dayData);
-    const sessionCount = dayData.complete_sessions.length + dayData.active_sessions.length;
+    const sessionCount = dayData.complete_sessions.length + dayData.active_sessions.length + dayData.manual_entries.length;
     html += `<div class="day-item">
       <div class="day-row${isDayOpen ? ' open' : ''}" onclick="toggleDay('${dayKey}')">
         <div class="day-name${isToday ? ' today' : ''}${isWeekend ? ' weekend' : ''}">${DAY_NAMES[dow]} <span class="day-date">${fmtDateShort(dStr)}</span></div>
