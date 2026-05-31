@@ -803,7 +803,7 @@ function renderWeekPanel(ws) {
   // Build full 7-day grid including weekend stubs
   const wsDate = new Date(ws + 'T00:00:00');
   let html = '';
-  for (let i = 0; i < 7; i++) {
+  for (let i = 6; i >= 0; i--) {
     const d = new Date(wsDate); d.setDate(d.getDate() + i);
     const dStr = d.toISOString().slice(0,10);
     const dow = d.getDay();
@@ -813,7 +813,8 @@ function renderWeekPanel(ws) {
     const dayKey = `${ws}/${dStr}`;
     const isDayOpen = openDay === dayKey;
 
-    if (isWeekend) {
+    // Weekend stub: only if there's no data to show
+    if (isWeekend && !dayData) {
       html += `<div class="day-item">
         <div class="day-row weekend">
           <div class="day-name weekend">${DAY_NAMES[dow]} <span class="day-date">${fmtDateShort(dStr)}</span></div>
@@ -824,7 +825,7 @@ function renderWeekPanel(ws) {
     }
 
     if (!dayData) {
-      // future weekday
+      // Future weekday
       html += `<div class="day-item">
         <div class="day-row" style="cursor:default">
           <div class="day-name">${DAY_NAMES[dow]} <span class="day-date">${fmtDateShort(dStr)}</span></div>
@@ -837,7 +838,7 @@ function renderWeekPanel(ws) {
     const status = dayStatus(dayData);
     html += `<div class="day-item">
       <div class="day-row${isDayOpen ? ' open' : ''}" onclick="toggleDay('${dayKey}')">
-        <div class="day-name${isToday ? ' today' : ''}">${DAY_NAMES[dow]} <span class="day-date">${fmtDateShort(dStr)}</span></div>
+        <div class="day-name${isToday ? ' today' : ''}${isWeekend ? ' weekend' : ''}">${DAY_NAMES[dow]} <span class="day-date">${fmtDateShort(dStr)}</span></div>
         <span class="status-chip ${status.cls}">${status.label}</span>
         <span class="day-hours">${dayData.hours > 0 ? fmt(dayData.hours) : '—'}</span>
         <span class="chevron${isDayOpen ? ' open' : ''}">›</span>
