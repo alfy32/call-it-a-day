@@ -969,20 +969,15 @@ function renderWeekChart(week, dailyTarget) {
 }
 
 async function toggleWork(sessionId, btn) {
-  const row = btn.closest('.session-row');
   const isWork = btn.classList.contains('is-work');
-  const newIsWork = !isWork;
-
   btn.disabled = true;
   try {
     await fetch(`/api/sessions/${sessionId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ is_work: newIsWork }),
+      body: JSON.stringify({ is_work: !isWork }),
     });
-    btn.classList.toggle('is-work', newIsWork);
-    btn.classList.toggle('is-nonwork', !newIsWork);
-    row.classList.toggle('non-work', !newIsWork);
+    refresh();
   } finally {
     btn.disabled = false;
   }
