@@ -576,20 +576,19 @@
 
   <!-- Hero card -->
   <div class="card" id="hero-card">
-    <div class="hero-time" id="hero-time">—</div>
-    <div class="hero-sub" id="hero-sub"></div>
+    <div class="done-row">
+      <div>
+        <div class="hero-time" id="hero-time">—</div>
+        <div class="hero-sub" id="hero-sub"></div>
+      </div>
+      <div id="hero-done-row" style="display:none">
+        <div class="done-msg">You've earned it.</div>
+        <div class="done-sub">Call it a day.</div>
+      </div>
+    </div>
     <div class="progress-wrap">
       <div class="progress-track">
         <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-      </div>
-    </div>
-    <div id="hero-done-row" style="display:none">
-      <div class="done-row" style="margin-top:4px">
-        <div></div>
-        <div>
-          <div class="done-msg">You've earned it.</div>
-          <div class="done-sub">Call it a day.</div>
-        </div>
       </div>
     </div>
     <hr class="hero-divider">
@@ -935,7 +934,7 @@ function renderHero(today, week) {
   fill.className = 'progress-fill' + (isDone ? ' done' : '');
 
   if (isDone) {
-    heroSub.textContent = isWeekend ? '' : `${fmt(today.daily_target)} goal reached`;
+    heroSub.textContent = isWeekend ? 'goal reached' : `${fmt(today.daily_target)} goal reached`;
     doneRow.style.display = 'block';
   } else {
     let sub = `of ${fmt(today.daily_target)} goal`;
