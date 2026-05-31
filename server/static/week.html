@@ -1060,6 +1060,7 @@ async function init() {
   const weekly = await weeklyRes.json();
   // Only show weeks that overlap with tracking_start_date
   allWeeks = weekly.weeks.filter(w => {
+    if (w.total_hours > 0) return true;
     const we = new Date(w.week_start + 'T00:00:00');
     we.setDate(we.getDate() + 6);
     return we.toISOString().slice(0,10) >= cfg.tracking_start;
