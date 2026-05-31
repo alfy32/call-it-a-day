@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Call It a Day</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #F8FAFC;
+      --surface:     #FFFFFF;
+      --indigo:      #4F46E5;
+      --indigo-dim:  #EEF2FF;
+      --emerald:     #059669;
+      --emerald-dim: #D1FAE5;
+      --amber:       #D97706;
+      --amber-dim:   #FEF3C7;
+      --red:         #DC2626;
+      --text-1:      #0F172A;
+      --text-2:      #64748B;
+      --text-3:      #94A3B8;
+      --border:      #E2E8F0;
+      --font-ui:     'Plus Jakarta Sans', sans-serif;
+      --font-body:   'Inter', sans-serif;
+      --font-mono:   'JetBrains Mono', monospace;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-1);
+      font-family: var(--font-body);
+      min-height: 100vh;
+    }
+
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .wordmark {
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text-1);
+      letter-spacing: -0.01em;
+    }
+    .wordmark span { color: var(--indigo); }
+    nav .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    nav .nav-date { font-size: 13px; color: var(--text-2); }
+    .nav-link {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      text-decoration: none;
+    }
+    .nav-link:hover { color: var(--text-1); }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+    }
+
+    /* Hero */
+    .hero-time {
+      font-family: var(--font-mono);
+      font-size: 52px;
+      font-weight: 600;
+      color: var(--text-1);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .hero-time.done { color: var(--emerald); }
+    .hero-sub { font-size: 14px; color: var(--text-2); margin-top: 6px; }
+    .progress-wrap { margin-top: 20px; }
+    .progress-track {
+      background: var(--border);
+      border-radius: 4px;
+      height: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--indigo);
+      transition: width 0.4s ease;
+    }
+    .progress-fill.done { background: var(--emerald); }
+
+    .hero-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    .done-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+    .done-msg {
+      font-family: var(--font-ui);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--emerald);
+      text-align: right;
+    }
+    .done-sub { font-size: 14px; color: var(--text-2); text-align: right; }
+
+    .weekly-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .wleft { display: flex; flex-direction: column; gap: 3px; }
+    .weekly-label {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--text-2);
+    }
+    .weekly-val {
+      font-family: var(--font-mono);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-1);
+    }
+    .weekly-val.done { color: var(--emerald); }
+    .weekly-remaining { font-size: 12px; color: var(--text-2); }
+    .bank-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .bank-chip.positive { background: var(--emerald-dim); color: var(--emerald); }
+    .bank-chip.negative { background: var(--amber-dim); color: var(--amber); }
+
+    /* Section header */
+    .section-header {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-2);
+      margin-bottom: 12px;
+    }
+
+    /* Badges */
+    .live-badge {
+      background: var(--indigo);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: var(--font-ui);
+      letter-spacing: 0.03em;
+    }
+    .flag-badge {
+      background: var(--amber);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-family: var(--font-ui);
+    }
+    .manual-tag {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-family: var(--font-ui);
+    }
+    .btn-ghost {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-2);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .btn-ghost:hover { color: var(--text-1); border-color: #CBD5E1; }
+
+    /* Session list */
+    .session-list { display: flex; flex-direction: column; }
+
+    .session-row {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .session-row:last-child { border-bottom: none; }
+
+    .session-row.live {
+      background: var(--indigo-dim);
+      border-radius: 8px;
+      padding: 11px 12px;
+      margin: 0 -12px;
+      border-bottom: none !important;
+    }
+    .session-row.flagged {
+      background: var(--amber-dim);
+      border-radius: 8px;
+      padding: 11px 12px;
+      margin: 4px -12px;
+      border-bottom: none !important;
+    }
+    .session-row.flagged .time-range { color: var(--amber); font-weight: 500; }
+    .session-row.live .time-range { color: var(--indigo); font-weight: 500; }
+    .session-row.live .dur { color: var(--indigo); }
+    .session-row.non-work .time-range { color: var(--text-3); }
+    .session-row.non-work .dur { color: var(--text-3); text-decoration: line-through; }
+
+    .dismiss-actions { display: flex; gap: 6px; }
+
+    .time-range {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .session-computer { font-size: 12px; color: var(--text-3); }
+    .dur {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-1);
+      min-width: 48px;
+      text-align: right;
+    }
+    .work-btn {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .work-btn.is-work { background: var(--indigo-dim); color: var(--indigo); }
+    .work-btn.is-nonwork { background: var(--border); color: var(--text-2); }
+
+    /* Gap row */
+    .gap-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 0;
+    }
+    .gap-line { flex: 1; height: 1px; background: var(--border); }
+    .gap-label {
+      font-size: 11px;
+      color: var(--text-3);
+      font-family: var(--font-ui);
+      white-space: nowrap;
+    }
+
+    /* Weekly chart */
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .day-col { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+    .day-bar-wrap { position: relative; width: 100%; height: 80px; }
+    .goal-line {
+      position: absolute;
+      left: 0; right: 0;
+      bottom: 80%;
+      border-top: 1.5px dashed var(--border);
+      z-index: 1;
+    }
+    .day-bar-track {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 100%;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .day-bar-fill {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      border-radius: 4px;
+      background: var(--indigo);
+      opacity: 0.6;
+      transition: height 0.4s ease;
+    }
+    .day-bar-fill.today { opacity: 1; }
+    .day-bar-fill.goal-met { background: var(--emerald); opacity: 0.75; }
+    .day-bar-fill.today.goal-met { opacity: 1; }
+    .day-label {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .day-label.today { color: var(--indigo); font-weight: 700; }
+    .day-hours { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); }
+    .day-hours.today { color: var(--text-1); font-weight: 500; }
+
+    /* Empty state */
+    .empty-state {
+      font-size: 13px;
+      color: var(--text-3);
+      text-align: center;
+      padding: 24px 0;
+    }
+
+    /* Loading */
+    .loading { opacity: 0.4; pointer-events: none; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="wordmark">Call It a <span>Day</span></div>
+  <div class="nav-right">
+    <a class="nav-link" href="/week.html">Week</a>
+    <div class="nav-date" id="nav-date"></div>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Hero card -->
+  <div class="card" id="hero-card">
+    <div class="hero-time" id="hero-time">—</div>
+    <div class="hero-sub" id="hero-sub"></div>
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div id="hero-done-row" style="display:none">
+      <div class="done-row" style="margin-top:4px">
+        <div></div>
+        <div>
+          <div class="done-msg">You've earned it.</div>
+          <div class="done-sub">Call it a day.</div>
+        </div>
+      </div>
+    </div>
+    <hr class="hero-divider">
+    <div class="weekly-summary">
+      <div class="wleft">
+        <div class="weekly-label">This week</div>
+        <div class="weekly-val" id="week-total">—</div>
+        <div class="weekly-remaining" id="week-remaining"></div>
+      </div>
+      <div class="bank-chip" id="bank-chip" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Weekly chart -->
+  <div class="card">
+    <div class="section-header">This Week</div>
+    <div class="week-grid" id="week-grid"></div>
+  </div>
+
+  <!-- Today's sessions -->
+  <div class="card">
+    <div class="section-header">Today's Sessions</div>
+    <div class="session-list" id="session-list">
+      <div class="empty-state">Loading…</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAY_NAMES_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function fmt(hours) {
+  const h = Math.floor(Math.abs(hours));
+  const m = Math.round((Math.abs(hours) - h) * 60);
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
+function fmtSigned(hours) {
+  const sign = hours >= 0 ? '+' : '–';
+  return sign + fmt(Math.abs(hours));
+}
+
+function fmtTime(isoStr) {
+  const d = new Date(isoStr);
+  let h = d.getHours(), m = d.getMinutes();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  return `${h}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+function mergeIntervals(intervals) {
+  if (!intervals.length) return [];
+  const sorted = [...intervals].sort((a, b) => a[0] - b[0]);
+  const result = [[sorted[0][0], sorted[0][1]]];
+  for (const [s, e] of sorted.slice(1)) {
+    if (s <= result[result.length - 1][1]) {
+      result[result.length - 1][1] = Math.max(result[result.length - 1][1], e);
+    } else {
+      result.push([s, e]);
+    }
+  }
+  return result;
+}
+
+function buildDisplayItems(today) {
+  const { active_sessions, complete_sessions, manual_entries } = today;
+  const now = Date.now();
+
+  // Build merged work intervals for gap detection
+  const intervals = [];
+  for (const s of active_sessions) {
+    const start = new Date(s.started_at).getTime();
+    intervals.push([start, Math.min(now, start + 12 * 3600000)]);
+  }
+  for (const s of complete_sessions) {
+    if (s.is_work) intervals.push([new Date(s.started_at).getTime(), new Date(s.ended_at).getTime()]);
+  }
+  for (const m of manual_entries) {
+    if (m.start_at) {
+      const start = new Date(m.start_at).getTime();
+      const end = m.end_at
+        ? new Date(m.end_at).getTime()
+        : start + m.hours_total * 3600000;
+      intervals.push([start, end]);
+    }
+  }
+  const merged = mergeIntervals(intervals);
+
+  // All items with sort key (newest first)
+  const items = [
+    ...active_sessions.map(s => ({
+      kind: 'active', data: s,
+      sortKey: new Date(s.started_at).getTime(),
+    })),
+    ...complete_sessions.map(s => ({
+      kind: 'complete', data: s,
+      sortKey: new Date(s.started_at).getTime(),
+    })),
+    ...manual_entries.map(m => ({
+      kind: 'manual', data: m,
+      sortKey: m.start_at ? new Date(m.start_at).getTime() : 0,
+    })),
+  ];
+  items.sort((a, b) => b.sortKey - a.sortKey);
+
+  // Insert gap rows between merged blocks
+  const display = [];
+  let prevBlockIdx = -1;
+
+  for (const item of items) {
+    const itemStart = item.data.started_at
+      ? new Date(item.data.started_at).getTime()
+      : (item.data.start_at ? new Date(item.data.start_at).getTime() : null);
+
+    let blockIdx = -1;
+    if (itemStart !== null) {
+      blockIdx = merged.findIndex(([s, e]) => s <= itemStart && itemStart <= e);
+    }
+
+    if (prevBlockIdx !== -1 && blockIdx !== -1 && blockIdx < prevBlockIdx) {
+      const gapEnd = merged[prevBlockIdx][0];
+      const gapStart = merged[blockIdx][1];
+      const gapMinutes = Math.round((gapEnd - gapStart) / 60000);
+      if (gapMinutes > 1) {
+        display.push({ kind: 'gap', minutes: gapMinutes });
+      }
+    }
+
+    if (blockIdx !== -1) prevBlockIdx = blockIdx;
+    display.push(item);
+  }
+
+  return display;
+}
+
+function renderSessions(today) {
+  const list = document.getElementById('session-list');
+  const items = buildDisplayItems(today);
+
+  if (!items.length) {
+    list.innerHTML = '<div class="empty-state">No sessions yet today.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+
+  for (const item of items) {
+    if (item.kind === 'gap') {
+      const row = document.createElement('div');
+      row.className = 'gap-row';
+      row.innerHTML = `
+        <div class="gap-line"></div>
+        <span class="gap-label">${fmt(item.minutes / 60)} break</span>
+        <div class="gap-line"></div>`;
+      list.appendChild(row);
+      continue;
+    }
+
+    if (item.kind === 'active') {
+      const s = item.data;
+      const isFlagged = s.is_flagged_duration || s.is_flagged_duplicate;
+      const row = document.createElement('div');
+      row.className = isFlagged ? 'session-row flagged' : 'session-row live';
+
+      if (isFlagged) {
+        const reason = s.is_flagged_duration
+          ? `${fmt(s.duration_hours)}+ · session too long`
+          : 'multiple active sessions on this computer';
+        row.innerHTML = `
+          <span class="time-range">
+            ${fmtTime(s.started_at)} – ?
+            <span class="flag-badge">Review</span>
+          </span>
+          <span class="session-computer">${s.computer} · ${reason}</span>
+          <span class="dur">—</span>
+          <div class="dismiss-actions">
+            <button class="btn-ghost" onclick="dismissActive(${s.id}, this)">Dismiss</button>
+          </div>`;
+      } else {
+        row.innerHTML = `
+          <span class="time-range">
+            ${fmtTime(s.started_at)} – now
+            <span class="live-badge">Live</span>
+          </span>
+          <span class="session-computer">${s.computer}</span>
+          <span class="dur">${fmt(s.duration_hours)}</span>
+          <span></span>`;
+      }
+      list.appendChild(row);
+      continue;
+    }
+
+    if (item.kind === 'complete') {
+      const s = item.data;
+      const dur = (new Date(s.ended_at) - new Date(s.started_at)) / 3600000;
+      const row = document.createElement('div');
+      row.className = 'session-row' + (s.is_work ? '' : ' non-work');
+      row.innerHTML = `
+        <span class="time-range">${fmtTime(s.started_at)} – ${fmtTime(s.ended_at)}</span>
+        <span class="session-computer">${s.computer}</span>
+        <span class="dur">${fmt(dur)}</span>
+        <button class="work-btn ${s.is_work ? 'is-work' : 'is-nonwork'}"
+          onclick="toggleWork(${s.id}, this)">Work</button>`;
+      list.appendChild(row);
+      continue;
+    }
+
+    if (item.kind === 'manual') {
+      const m = item.data;
+      let timeStr;
+      if (m.start_at && m.end_at) {
+        timeStr = `${fmtTime(m.start_at)} – ${fmtTime(m.end_at)}`;
+      } else if (m.start_at) {
+        timeStr = `${fmtTime(m.start_at)} – ?`;
+      } else {
+        timeStr = `<span style="color:var(--text-3);font-style:italic">no time specified</span>`;
+      }
+      const row = document.createElement('div');
+      row.className = 'session-row';
+      row.innerHTML = `
+        <span class="time-range">${timeStr}</span>
+        <span class="session-computer">${m.note || ''}</span>
+        <span class="dur">${fmt(m.hours_total)}</span>
+        <span class="manual-tag">manual</span>`;
+      list.appendChild(row);
+    }
+  }
+}
+
+function renderHero(today, week) {
+  const isDone = today.is_done;
+  const pct = Math.min(100, (today.hours_worked / today.daily_target) * 100);
+
+  const heroTime = document.getElementById('hero-time');
+  const heroSub = document.getElementById('hero-sub');
+  const fill = document.getElementById('progress-fill');
+  const doneRow = document.getElementById('hero-done-row');
+
+  heroTime.textContent = fmt(today.hours_worked);
+  heroTime.className = 'hero-time' + (isDone ? ' done' : '');
+  fill.style.width = pct + '%';
+  fill.className = 'progress-fill' + (isDone ? ' done' : '');
+
+  if (isDone) {
+    heroSub.textContent = `${fmt(today.daily_target)} goal reached`;
+    doneRow.style.display = 'block';
+  } else {
+    let sub = `of ${fmt(today.daily_target)} goal`;
+    if (today.hours_remaining > 0) sub += ` · ${fmt(today.hours_remaining)} remaining`;
+    if (today.stop_time) sub += ` · done by ${fmtTime(today.stop_time)}`;
+    heroSub.textContent = sub;
+    doneRow.style.display = 'none';
+  }
+
+  // Week section
+  const weekDone = week.total_hours >= week.weekly_target;
+  const weekVal = document.getElementById('week-total');
+  const weekRem = document.getElementById('week-remaining');
+  const bankChip = document.getElementById('bank-chip');
+
+  weekVal.textContent = fmt(week.total_hours);
+  weekVal.className = 'weekly-val' + (weekDone ? ' done' : '');
+
+  if (weekDone) {
+    weekRem.textContent = `${fmt(week.weekly_target)} goal reached`;
+  } else {
+    weekRem.textContent = `of ${fmt(week.weekly_target)} · ${fmt(week.hours_remaining)} to go`;
+  }
+
+  const bank = today.bank_hours;
+  if (Math.abs(bank) >= 0.05) {
+    bankChip.style.display = 'inline-flex';
+    bankChip.textContent = fmtSigned(bank) + (bank >= 0 ? ' banked' : ' to make up');
+    bankChip.className = 'bank-chip ' + (bank >= 0 ? 'positive' : 'negative');
+  } else {
+    bankChip.style.display = 'none';
+  }
+}
+
+function renderWeekChart(week, dailyTarget) {
+  const grid = document.getElementById('week-grid');
+  grid.innerHTML = '';
+  const todayIdx = new Date().getDay(); // 0=Sun
+  const MAX_HOURS = dailyTarget * 1.25; // scale: goal line at 80%
+
+  for (const day of week.daily_breakdown) {
+    const d = new Date(day.date + 'T00:00:00');
+    const dayOfWeek = d.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) continue; // skip weekends
+    const isToday = day.is_today;
+    const goalMet = day.hours >= dailyTarget;
+    const heightPct = Math.min(100, (day.hours / MAX_HOURS) * 100);
+
+    const col = document.createElement('div');
+    col.className = 'day-col';
+    col.innerHTML = `
+      <div class="day-bar-wrap">
+        <div class="goal-line"></div>
+        <div class="day-bar-track">
+          <div class="day-bar-fill${isToday ? ' today' : ''}${goalMet ? ' goal-met' : ''}"
+            style="height:${heightPct}%"></div>
+        </div>
+      </div>
+      <div class="day-label${isToday ? ' today' : ''}">${DAY_NAMES[dayOfWeek]}</div>
+      <div class="day-hours${isToday ? ' today' : ''}">${day.hours > 0 ? fmt(day.hours) : '—'}</div>`;
+    grid.appendChild(col);
+  }
+}
+
+async function toggleWork(sessionId, btn) {
+  const row = btn.closest('.session-row');
+  const isWork = btn.classList.contains('is-work');
+  const newIsWork = !isWork;
+
+  btn.disabled = true;
+  try {
+    await fetch(`/api/sessions/${sessionId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_work: newIsWork }),
+    });
+    btn.classList.toggle('is-work', newIsWork);
+    btn.classList.toggle('is-nonwork', !newIsWork);
+    row.classList.toggle('non-work', !newIsWork);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function dismissActive(sessionId, btn) {
+  btn.disabled = true;
+  try {
+    await fetch(`/api/active_sessions/${sessionId}`, { method: 'DELETE' });
+    const row = btn.closest('.session-row');
+    row.remove();
+    refresh();
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function refresh() {
+  try {
+    const [todayRes, weekRes] = await Promise.all([
+      fetch('/api/summary/today'),
+      fetch('/api/summary/week'),
+    ]);
+    const today = await todayRes.json();
+    const week = await weekRes.json();
+
+    renderHero(today, week);
+    renderWeekChart(week, today.daily_target);
+    renderSessions(today);
+  } catch (e) {
+    console.error('refresh failed:', e);
+  }
+}
+
+// Set nav date
+(function() {
+  const d = new Date();
+  const nav = document.getElementById('nav-date');
+  nav.textContent = `${DAY_NAMES_FULL[d.getDay()]}, ${MONTH_NAMES[d.getMonth()]} ${d.getDate()}`;
+})();
+
+refresh();
+setInterval(refresh, 30000);
+</script>
+
+</body>
+</html>

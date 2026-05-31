@@ -1,0 +1,11 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - "8001:8000"
+    volumes:
+      - /var/lib/callitaday:/app/data
+    environment:
+      - DATABASE_URL=sqlite:////app/data/callitaday.db
+      - TZ=America/Denver
+    restart: unless-stopped
